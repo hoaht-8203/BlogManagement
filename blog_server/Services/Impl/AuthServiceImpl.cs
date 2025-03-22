@@ -36,7 +36,8 @@ public class AuthServiceImpl(
                 .Users.Include(u => u.UserRoles)
                 .ThenInclude(ur => ur.Role)
                 .SingleOrDefaultAsync(u =>
-                    u.Username == request.Username && u.Status == AppStatus.Active
+                    (u.Email == request.Username || u.Username == request.Username)
+                    && u.Status == AppStatus.Active
                 )
             ?? throw new ApiException(
                 "Invalid username or password",
@@ -69,9 +70,14 @@ public class AuthServiceImpl(
         };
     }
 
-    public Task<MyInfoResponse> MyInfo()
+    public async Task<MyInfoResponse> MyInfo()
     {
-        throw new NotImplementedException();
+        var user =
+            await _context.Users.SingleOrDefaultAsync(u =>
+                u.Username == _currentUser.Username && u.Status == AppStatus.Active
+            ) ?? throw new ApiException("User not found", StatusCodes.Status404NotFound);
+
+        return _mapper.Map<MyInfoResponse>(user);
     }
 
     public async Task<RefreshTokenResponse> RefreshToken(RefreshTokenRequest request)
@@ -143,9 +149,16 @@ public class AuthServiceImpl(
         return _mapper.Map<RegisterResponse>(user);
     }
 
-    public Task RevokeToken(string username)
+    public async Task RevokeToken(string username)
     {
-        throw new NotImplementedException();
+        var user =
+            await _context.Users.SingleOrDefaultAsync(u =>
+                u.Username == username && u.Status == AppStatus.Active
+            ) ?? throw new ApiException("User not found", StatusCodes.Status404NotFound);
+
+        user.RefreshToken = null;
+        user.RefreshTokenExpiryTime = null;
+        await _context.SaveChangesAsync();
     }
 
     private static string GenerateRefreshToken()
