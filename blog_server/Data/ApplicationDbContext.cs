@@ -1,6 +1,4 @@
-using System;
 using blog_server.Constants;
-using blog_server.Exceptions;
 using blog_server.Helpers;
 using blog_server.Models;
 using blog_server.Sessions;
@@ -44,44 +42,55 @@ public class ApplicationDbContext(
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         var entries = ChangeTracker.Entries<BaseEntity>();
+        var currentUserId = GetCurrentUserIdSafe();
+        var currentTime = DateTime.UtcNow;
 
         foreach (var entry in entries)
         {
-            if (entry.State == EntityState.Added)
+            switch (entry.State)
             {
-                entry.Entity.CreateDate = DateTime.UtcNow;
-                entry.Entity.UpdateDate = DateTime.UtcNow;
-                entry.Entity.CreateBy ??= GetCurrentUserId();
-                entry.Entity.UpdateBy ??= GetCurrentUserId();
-            }
-            else if (entry.State == EntityState.Modified)
-            {
-                entry.Entity.UpdateDate = DateTime.UtcNow;
-                entry.Entity.UpdateBy = GetCurrentUserId();
+                case EntityState.Added:
+                    entry.Entity.CreateDate = currentTime;
+                    entry.Entity.UpdateDate = currentTime;
+                    entry.Entity.CreateBy = currentUserId;
+                    entry.Entity.UpdateBy = currentUserId;
+                    break;
+
+                case EntityState.Modified:
+                    entry.Entity.UpdateDate = currentTime;
+                    entry.Entity.UpdateBy = currentUserId;
+                    entry.Property(x => x.CreateDate).IsModified = false;
+                    entry.Property(x => x.CreateBy).IsModified = false;
+                    break;
             }
         }
 
         return base.SaveChangesAsync(cancellationToken);
     }
 
-    private Guid GetCurrentUserId()
+    private Guid? GetCurrentUserIdSafe()
     {
-        return _currentUser.UserId
-            ?? throw new ApiException(
-                "User is not authenticated",
-                StatusCodes.Status401Unauthorized
-            );
+        try
+        {
+            return _currentUser.UserId;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private static void SeedData(ModelBuilder modelBuilder)
     {
+        var systemDate = DateTime.UtcNow;
+
         var adminRole = new Role
         {
             Id = 1,
             Name = AppRole.ADMIN,
             Description = "Administrator role",
-            CreateDate = DateTime.UtcNow,
-            UpdateDate = DateTime.UtcNow,
+            CreateDate = systemDate,
+            UpdateDate = systemDate,
             CreateBy = null,
             UpdateBy = null,
         };
@@ -90,8 +99,8 @@ public class ApplicationDbContext(
             Id = 2,
             Name = AppRole.USER,
             Description = "User role",
-            CreateDate = DateTime.UtcNow,
-            UpdateDate = DateTime.UtcNow,
+            CreateDate = systemDate,
+            UpdateDate = systemDate,
             CreateBy = null,
             UpdateBy = null,
         };
@@ -108,8 +117,8 @@ public class ApplicationDbContext(
             Email = "admin@example.com",
             PasswordHash = PasswordHelper.HashPassword("admin123"),
             Status = AppStatus.Active,
-            CreateDate = DateTime.UtcNow,
-            UpdateDate = DateTime.UtcNow,
+            CreateDate = systemDate,
+            UpdateDate = systemDate,
             CreateBy = null,
             UpdateBy = null,
         };
@@ -120,8 +129,8 @@ public class ApplicationDbContext(
             Email = "user@example.com",
             PasswordHash = PasswordHelper.HashPassword("user123"),
             Status = AppStatus.Active,
-            CreateDate = DateTime.UtcNow,
-            UpdateDate = DateTime.UtcNow,
+            CreateDate = systemDate,
+            UpdateDate = systemDate,
             CreateBy = null,
             UpdateBy = null,
         };
@@ -135,13 +144,13 @@ public class ApplicationDbContext(
                 {
                     UserId = userId1,
                     RoleId = 1,
-                    JoinDate = DateTime.UtcNow,
+                    JoinDate = systemDate,
                 },
                 new UserRole
                 {
                     UserId = userId2,
                     RoleId = 2,
-                    JoinDate = DateTime.UtcNow,
+                    JoinDate = systemDate,
                 }
             );
     }
