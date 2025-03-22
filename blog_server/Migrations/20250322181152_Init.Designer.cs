@@ -12,8 +12,8 @@ using blog_server.Data;
 namespace blog_server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250322164420_FixAuth")]
-    partial class FixAuth
+    [Migration("20250322181152_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -70,6 +70,14 @@ namespace blog_server.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<Guid?>("CreateBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("create_by");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_date");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text")
@@ -92,6 +100,14 @@ namespace blog_server.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("status");
 
+                    b.Property<Guid?>("UpdateBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("update_by");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_date");
+
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("text")
@@ -105,17 +121,21 @@ namespace blog_server.Migrations
                         new
                         {
                             Id = new Guid("96cb39f1-318f-4b17-97fb-c9bffe823a98"),
+                            CreateDate = new DateTime(2025, 3, 22, 18, 11, 52, 31, DateTimeKind.Utc).AddTicks(9680),
                             Email = "admin@example.com",
-                            PasswordHash = "bkt/JODEdbDR7FJS1xi+k/aBshLu9spXfRSSBg/qS6CrxMlv6tqfMFEy1+OWljK2ivcw/aonZLOX5WhEDwoHoj9bqowtwSKsNz9SDfjlcyY=",
+                            PasswordHash = "xynG9F5ttn78RTmNvWlXGQxhwXOV2+6TrKlW111+ZSM8oUXDAT9XTubtljlzSUhGltHbecf3q6d/oi2T/QGsT/KeDQ0rN1Dmuf2entVnD7M=",
                             Status = 1,
+                            UpdateDate = new DateTime(2025, 3, 22, 18, 11, 52, 31, DateTimeKind.Utc).AddTicks(9680),
                             Username = "admin"
                         },
                         new
                         {
                             Id = new Guid("19542f2e-d222-4a24-a786-c2dc08ccfd87"),
+                            CreateDate = new DateTime(2025, 3, 22, 18, 11, 52, 31, DateTimeKind.Utc).AddTicks(9710),
                             Email = "user@example.com",
-                            PasswordHash = "y5k3YlEFB8xQCTElrM/knK5Pp7D5U23elJkXeCMKvpQLBefp6SrR7N37cKs8BZhU7FbS990e/dq2k1EIsJXEQ+WIfPk0luYV7cnO7zLwPS0=",
+                            PasswordHash = "0SaoEabSNpmHBSGCystG6o6Fk8NEomQ6MeZDDdFGvBjMugMa1w3YQ6nVKcM52n2K6/C8XnLJSAGib4Q7de3V9xOjAXzUOQsCvu0v25qlrg0=",
                             Status = 1,
+                            UpdateDate = new DateTime(2025, 3, 22, 18, 11, 52, 31, DateTimeKind.Utc).AddTicks(9710),
                             Username = "user"
                         });
                 });
@@ -145,13 +165,13 @@ namespace blog_server.Migrations
                         {
                             UserId = new Guid("96cb39f1-318f-4b17-97fb-c9bffe823a98"),
                             RoleId = 1,
-                            JoinDate = new DateTime(2025, 3, 22, 16, 44, 20, 545, DateTimeKind.Utc).AddTicks(720)
+                            JoinDate = new DateTime(2025, 3, 22, 18, 11, 52, 31, DateTimeKind.Utc).AddTicks(9730)
                         },
                         new
                         {
                             UserId = new Guid("19542f2e-d222-4a24-a786-c2dc08ccfd87"),
                             RoleId = 2,
-                            JoinDate = new DateTime(2025, 3, 22, 16, 44, 20, 545, DateTimeKind.Utc).AddTicks(720)
+                            JoinDate = new DateTime(2025, 3, 22, 18, 11, 52, 31, DateTimeKind.Utc).AddTicks(9730)
                         });
                 });
 

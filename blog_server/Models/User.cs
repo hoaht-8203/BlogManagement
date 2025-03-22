@@ -5,7 +5,7 @@ using blog_server.Constants;
 namespace blog_server.Models;
 
 [Table("users")]
-public class User
+public class User : BaseEntity
 {
     [Column("id")]
     public Guid Id { get; set; } = Guid.NewGuid();

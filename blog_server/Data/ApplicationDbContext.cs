@@ -1,14 +1,19 @@
 using System;
 using blog_server.Constants;
+using blog_server.Exceptions;
 using blog_server.Helpers;
 using blog_server.Models;
+using blog_server.Sessions;
 using Microsoft.EntityFrameworkCore;
 
 namespace blog_server.Data;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-    : DbContext(options)
+public class ApplicationDbContext(
+    DbContextOptions<ApplicationDbContext> options,
+    ICurrentUser currentUser
+) : DbContext(options)
 {
+    private readonly ICurrentUser _currentUser = currentUser;
     public DbSet<User> Users { get; set; }
     public DbSet<Role> Roles { get; set; }
     public DbSet<UserRole> UserRoles { get; set; }
@@ -36,6 +41,38 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         SeedData(modelBuilder);
     }
 
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var entries = ChangeTracker.Entries<BaseEntity>();
+
+        foreach (var entry in entries)
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreateDate = DateTime.UtcNow;
+                entry.Entity.UpdateDate = DateTime.UtcNow;
+                entry.Entity.CreateBy ??= GetCurrentUserId();
+                entry.Entity.UpdateBy ??= GetCurrentUserId();
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdateDate = DateTime.UtcNow;
+                entry.Entity.UpdateBy = GetCurrentUserId();
+            }
+        }
+
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    private Guid GetCurrentUserId()
+    {
+        return _currentUser.UserId
+            ?? throw new ApiException(
+                "User is not authenticated",
+                StatusCodes.Status401Unauthorized
+            );
+    }
+
     private static void SeedData(ModelBuilder modelBuilder)
     {
         var adminRole = new Role
@@ -43,12 +80,20 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             Id = 1,
             Name = AppRole.ADMIN,
             Description = "Administrator role",
+            CreateDate = DateTime.UtcNow,
+            UpdateDate = DateTime.UtcNow,
+            CreateBy = null,
+            UpdateBy = null,
         };
         var userRole = new Role
         {
             Id = 2,
             Name = AppRole.USER,
             Description = "User role",
+            CreateDate = DateTime.UtcNow,
+            UpdateDate = DateTime.UtcNow,
+            CreateBy = null,
+            UpdateBy = null,
         };
 
         modelBuilder.Entity<Role>().HasData(adminRole, userRole);
@@ -63,6 +108,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             Email = "admin@example.com",
             PasswordHash = PasswordHelper.HashPassword("admin123"),
             Status = AppStatus.Active,
+            CreateDate = DateTime.UtcNow,
+            UpdateDate = DateTime.UtcNow,
+            CreateBy = null,
+            UpdateBy = null,
         };
         var user2 = new User
         {
@@ -71,6 +120,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             Email = "user@example.com",
             PasswordHash = PasswordHelper.HashPassword("user123"),
             Status = AppStatus.Active,
+            CreateDate = DateTime.UtcNow,
+            UpdateDate = DateTime.UtcNow,
+            CreateBy = null,
+            UpdateBy = null,
         };
 
         modelBuilder.Entity<User>().HasData(user1, user2);

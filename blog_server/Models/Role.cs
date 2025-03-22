@@ -6,7 +6,7 @@ using blog_server.Constants;
 namespace blog_server.Models;
 
 [Table("roles")]
-public class Role
+public class Role : BaseEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

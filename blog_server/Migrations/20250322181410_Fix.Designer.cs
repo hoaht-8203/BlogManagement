@@ -12,8 +12,8 @@ using blog_server.Data;
 namespace blog_server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250316104544_FixInit")]
-    partial class FixInit
+    [Migration("20250322181410_Fix")]
+    partial class Fix
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -34,6 +34,14 @@ namespace blog_server.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<Guid?>("CreateBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("create_by");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_date");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text")
@@ -44,6 +52,14 @@ namespace blog_server.Migrations
                         .HasColumnType("text")
                         .HasColumnName("name");
 
+                    b.Property<Guid?>("UpdateBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("update_by");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_date");
+
                     b.HasKey("Id");
 
                     b.ToTable("roles");
@@ -52,14 +68,18 @@ namespace blog_server.Migrations
                         new
                         {
                             Id = 1,
+                            CreateDate = new DateTime(2025, 3, 22, 18, 14, 10, 219, DateTimeKind.Utc).AddTicks(1670),
                             Description = "Administrator role",
-                            Name = "Admin"
+                            Name = "ADMIN",
+                            UpdateDate = new DateTime(2025, 3, 22, 18, 14, 10, 219, DateTimeKind.Utc).AddTicks(1670)
                         },
                         new
                         {
                             Id = 2,
+                            CreateDate = new DateTime(2025, 3, 22, 18, 14, 10, 219, DateTimeKind.Utc).AddTicks(1670),
                             Description = "User role",
-                            Name = "User"
+                            Name = "USER",
+                            UpdateDate = new DateTime(2025, 3, 22, 18, 14, 10, 219, DateTimeKind.Utc).AddTicks(1670)
                         });
                 });
 
@@ -69,6 +89,14 @@ namespace blog_server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<Guid?>("CreateBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("create_by");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_date");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -92,6 +120,14 @@ namespace blog_server.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("status");
 
+                    b.Property<Guid?>("UpdateBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("update_by");
+
+                    b.Property<DateTime>("UpdateDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_date");
+
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("text")
@@ -105,17 +141,21 @@ namespace blog_server.Migrations
                         new
                         {
                             Id = new Guid("96cb39f1-318f-4b17-97fb-c9bffe823a98"),
+                            CreateDate = new DateTime(2025, 3, 22, 18, 14, 10, 219, DateTimeKind.Utc).AddTicks(2130),
                             Email = "admin@example.com",
-                            PasswordHash = "e/Yd9331TdJJ3zn/vj//qJHHgQETX102eTRf1zVm/QUPHhTfNZqH324wm9U6vbLL32vDoMRmiRi1ObfTiB3fhw9cAnICfm0NYNCiSWXsh/I=",
+                            PasswordHash = "6tBqc/UePRvaz9W2ORvEZfkQjIBc3JHrQ/Mxj/EGkO293a178/dTWvE01iswTYnrFGGAePGGJs2wxTrS40xK564iZUR5qpcekHwKDsZ4w08=",
                             Status = 1,
+                            UpdateDate = new DateTime(2025, 3, 22, 18, 14, 10, 219, DateTimeKind.Utc).AddTicks(2130),
                             Username = "admin"
                         },
                         new
                         {
                             Id = new Guid("19542f2e-d222-4a24-a786-c2dc08ccfd87"),
+                            CreateDate = new DateTime(2025, 3, 22, 18, 14, 10, 219, DateTimeKind.Utc).AddTicks(2160),
                             Email = "user@example.com",
-                            PasswordHash = "k1HqX/MidxiyF46+xAnxDwMgOOZnloc62pbDt3dWiten9+woUNM3vxiap2UqWTURCZsqzq9tY/P5HC/Yt1TDMRV9yAnSGLYryb1Z3DtNm6k=",
+                            PasswordHash = "Bwh9DhUbzVcvjM7/ECw/LyrOItE2F4hbQ0Ond6WJAbwrWqKzUPHhRLLMw4EJxhS7W15gAIXdLgYbk2tac2zEiE3oBbcujK1+LaC/tEjftGs=",
                             Status = 1,
+                            UpdateDate = new DateTime(2025, 3, 22, 18, 14, 10, 219, DateTimeKind.Utc).AddTicks(2160),
                             Username = "user"
                         });
                 });
@@ -145,13 +185,13 @@ namespace blog_server.Migrations
                         {
                             UserId = new Guid("96cb39f1-318f-4b17-97fb-c9bffe823a98"),
                             RoleId = 1,
-                            JoinDate = new DateTime(2025, 3, 16, 10, 45, 44, 94, DateTimeKind.Utc).AddTicks(5770)
+                            JoinDate = new DateTime(2025, 3, 22, 18, 14, 10, 219, DateTimeKind.Utc).AddTicks(2180)
                         },
                         new
                         {
                             UserId = new Guid("19542f2e-d222-4a24-a786-c2dc08ccfd87"),
                             RoleId = 2,
-                            JoinDate = new DateTime(2025, 3, 16, 10, 45, 44, 94, DateTimeKind.Utc).AddTicks(5770)
+                            JoinDate = new DateTime(2025, 3, 22, 18, 14, 10, 219, DateTimeKind.Utc).AddTicks(2180)
                         });
                 });
 
