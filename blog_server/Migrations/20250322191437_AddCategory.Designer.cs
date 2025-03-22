@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using blog_server.Data;
@@ -11,9 +12,11 @@ using blog_server.Data;
 namespace blog_server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250322191437_AddCategory")]
+    partial class AddCategory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,34 +29,26 @@ namespace blog_server.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("description");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("name");
+                        .HasColumnType("text");
 
                     b.Property<int?>("ParentId")
-                        .HasColumnType("integer")
-                        .HasColumnName("parent_id");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer")
-                        .HasColumnName("status");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("categories");
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("blog_server.Models.Role", b =>
@@ -99,18 +94,18 @@ namespace blog_server.Migrations
                         new
                         {
                             Id = 1,
-                            CreateDate = new DateTime(2025, 3, 22, 20, 7, 33, 184, DateTimeKind.Utc).AddTicks(6880),
+                            CreateDate = new DateTime(2025, 3, 22, 19, 14, 37, 813, DateTimeKind.Utc).AddTicks(2800),
                             Description = "Administrator role",
                             Name = "ADMIN",
-                            UpdateDate = new DateTime(2025, 3, 22, 20, 7, 33, 184, DateTimeKind.Utc).AddTicks(6880)
+                            UpdateDate = new DateTime(2025, 3, 22, 19, 14, 37, 813, DateTimeKind.Utc).AddTicks(2800)
                         },
                         new
                         {
                             Id = 2,
-                            CreateDate = new DateTime(2025, 3, 22, 20, 7, 33, 184, DateTimeKind.Utc).AddTicks(6880),
+                            CreateDate = new DateTime(2025, 3, 22, 19, 14, 37, 813, DateTimeKind.Utc).AddTicks(2800),
                             Description = "User role",
                             Name = "USER",
-                            UpdateDate = new DateTime(2025, 3, 22, 20, 7, 33, 184, DateTimeKind.Utc).AddTicks(6880)
+                            UpdateDate = new DateTime(2025, 3, 22, 19, 14, 37, 813, DateTimeKind.Utc).AddTicks(2800)
                         });
                 });
 
@@ -172,21 +167,21 @@ namespace blog_server.Migrations
                         new
                         {
                             Id = new Guid("96cb39f1-318f-4b17-97fb-c9bffe823a98"),
-                            CreateDate = new DateTime(2025, 3, 22, 20, 7, 33, 184, DateTimeKind.Utc).AddTicks(6880),
+                            CreateDate = new DateTime(2025, 3, 22, 19, 14, 37, 813, DateTimeKind.Utc).AddTicks(2800),
                             Email = "admin@example.com",
-                            PasswordHash = "OK/1J81kUheB3WfUpt2rVNrNFsDo8KKXlgFKvTx7wLiyPoZyttmLVK8XcX177rs0DfDlNWUcJgNqw1/MMn/u7HymhW566/BgwDGRedxBICk=",
+                            PasswordHash = "UYiJT8dizm0dyN5VLXBRbH9+mDFA4459vCIDA42BZcIV7YQAP3Pi5ehdtXtpqtj1LWEeCgYKq29yQAbKz98NEkiGYuFhlFY+sE4iq4+oTF8=",
                             Status = 1,
-                            UpdateDate = new DateTime(2025, 3, 22, 20, 7, 33, 184, DateTimeKind.Utc).AddTicks(6880),
+                            UpdateDate = new DateTime(2025, 3, 22, 19, 14, 37, 813, DateTimeKind.Utc).AddTicks(2800),
                             Username = "admin"
                         },
                         new
                         {
                             Id = new Guid("19542f2e-d222-4a24-a786-c2dc08ccfd87"),
-                            CreateDate = new DateTime(2025, 3, 22, 20, 7, 33, 184, DateTimeKind.Utc).AddTicks(6880),
+                            CreateDate = new DateTime(2025, 3, 22, 19, 14, 37, 813, DateTimeKind.Utc).AddTicks(2800),
                             Email = "user@example.com",
-                            PasswordHash = "SffPuZu1nu719rKXqWIj42+WOo3/YvAmGXbBA3KdJrPnK+tzP4Q7YZKWBzzMfZzrvMIMyPOC+Hkm03SO411N4WJYEAxkzwtA3a/6lBzVO8Y=",
+                            PasswordHash = "LYujlZGR5azlHk2VjgogH8mvDXKcBPQwOh0vTiVToa4WMLJVtcnxPGg1oYPDZA+LHc2fOqPpP5hXwi/ww1tfN4k29n/sFD36A8uFNHRx+fE=",
                             Status = 1,
-                            UpdateDate = new DateTime(2025, 3, 22, 20, 7, 33, 184, DateTimeKind.Utc).AddTicks(6880),
+                            UpdateDate = new DateTime(2025, 3, 22, 19, 14, 37, 813, DateTimeKind.Utc).AddTicks(2800),
                             Username = "user"
                         });
                 });
@@ -216,13 +211,13 @@ namespace blog_server.Migrations
                         {
                             UserId = new Guid("96cb39f1-318f-4b17-97fb-c9bffe823a98"),
                             RoleId = 1,
-                            JoinDate = new DateTime(2025, 3, 22, 20, 7, 33, 184, DateTimeKind.Utc).AddTicks(6880)
+                            JoinDate = new DateTime(2025, 3, 22, 19, 14, 37, 813, DateTimeKind.Utc).AddTicks(2800)
                         },
                         new
                         {
                             UserId = new Guid("19542f2e-d222-4a24-a786-c2dc08ccfd87"),
                             RoleId = 2,
-                            JoinDate = new DateTime(2025, 3, 22, 20, 7, 33, 184, DateTimeKind.Utc).AddTicks(6880)
+                            JoinDate = new DateTime(2025, 3, 22, 19, 14, 37, 813, DateTimeKind.Utc).AddTicks(2800)
                         });
                 });
 

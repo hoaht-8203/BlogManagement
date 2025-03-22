@@ -133,6 +133,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddScoped<IAuthService, AuthServiceImpl>();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+builder.Services.AddScoped<ICategoryService, CategoryServiceImpl>();
 
 builder.Services.AddCors(options =>
 {
