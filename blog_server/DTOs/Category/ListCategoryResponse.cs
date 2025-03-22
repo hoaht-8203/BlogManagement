@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace blog_server.DTOs.Category;
 
 public class ListCategoryResponse

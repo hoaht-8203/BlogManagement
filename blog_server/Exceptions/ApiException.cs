@@ -1,5 +1,3 @@
-using System;
-
 namespace blog_server.Exceptions;
 
 public class ApiException : Exception

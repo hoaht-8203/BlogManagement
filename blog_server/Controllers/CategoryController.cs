@@ -2,7 +2,6 @@ using blog_server.CustomAttributes;
 using blog_server.DTOs.Category;
 using blog_server.Models;
 using blog_server.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace blog_server.Controllers

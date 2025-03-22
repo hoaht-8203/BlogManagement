@@ -1,5 +1,3 @@
-using System;
-
 namespace blog_server.DTOs.Auth;
 
 public class RegisterResponse
