@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using blog_server.Constants;
 
 namespace blog_server.Models;
 
@@ -13,7 +14,7 @@ public class Role
     public int Id { get; set; }
 
     [Column("name")]
-    public string Name { get; set; } = string.Empty;
+    public AppRole Name { get; set; }
 
     [Column("description")]
     public string Description { get; set; } = string.Empty;

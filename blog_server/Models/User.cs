@@ -8,7 +8,7 @@ namespace blog_server.Models;
 public class User
 {
     [Column("id")]
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
 
     [Column("username")]
     public string Username { get; set; } = string.Empty;

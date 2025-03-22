@@ -15,7 +15,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<Role>().Property(r => r.Name).HasConversion<string>();
 
         modelBuilder.Entity<UserRole>().HasKey(ur => new { ur.UserId, ur.RoleId });
 
@@ -31,6 +31,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             .WithMany(r => r.UserRoles)
             .HasForeignKey(ur => ur.RoleId);
 
+        base.OnModelCreating(modelBuilder);
+
         SeedData(modelBuilder);
     }
 
@@ -39,13 +41,13 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         var adminRole = new Role
         {
             Id = 1,
-            Name = "Admin",
+            Name = AppRole.ADMIN,
             Description = "Administrator role",
         };
         var userRole = new Role
         {
             Id = 2,
-            Name = "User",
+            Name = AppRole.USER,
             Description = "User role",
         };
 
