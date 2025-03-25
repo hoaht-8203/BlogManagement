@@ -5,7 +5,7 @@ using blog_server.Constants;
 namespace blog_server.Models;
 
 [Table("categories")]
-public class Category
+public class Category : BaseEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

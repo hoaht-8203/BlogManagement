@@ -1,7 +1,9 @@
+using blog_server.Constants;
 using blog_server.CustomAttributes;
 using blog_server.DTOs.Category;
 using blog_server.Models;
 using blog_server.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace blog_server.Controllers
@@ -15,7 +17,7 @@ namespace blog_server.Controllers
         [Transaction]
         [HttpPost("create")]
         public async Task<ActionResult<ApiResponse<CreateCategoryResponse>>> Create(
-            CreateCategoryRequest request
+            [FromBody] CreateCategoryRequest request
         )
         {
             var response = await _categoryService.CreateCategory(request);
@@ -29,7 +31,7 @@ namespace blog_server.Controllers
 
         [HttpGet("detail")]
         public async Task<ActionResult<ApiResponse<DetailCategoryResponse>>> Detail(
-            DetailCategoryRequest request
+            [FromQuery] DetailCategoryRequest request
         )
         {
             var response = await _categoryService.DetailCategory(request);
@@ -44,7 +46,7 @@ namespace blog_server.Controllers
         [Transaction]
         [HttpPut("update")]
         public async Task<ActionResult<ApiResponse<UpdateCategoryResponse>>> Update(
-            UpdateCategoryRequest request
+            [FromBody] UpdateCategoryRequest request
         )
         {
             var response = await _categoryService.UpdateCategory(request);
@@ -59,7 +61,7 @@ namespace blog_server.Controllers
         [Transaction]
         [HttpDelete("delete")]
         public async Task<ActionResult<ApiResponse<DeleteCategoryResponse>>> Delete(
-            DeleteCategoryRequest request
+            [FromBody] DeleteCategoryRequest request
         )
         {
             var response = await _categoryService.DeleteCategory(request);
@@ -71,6 +73,7 @@ namespace blog_server.Controllers
             );
         }
 
+        [Authorize(Roles = "ADMIN")]
         [HttpGet("list")]
         public async Task<ActionResult<ApiResponse<ListCategoryResponse>>> List(
             [FromQuery] ListCategoryRequest request
