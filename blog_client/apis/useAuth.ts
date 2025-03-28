@@ -45,7 +45,7 @@ export const useAuth = () => {
       router.push('/');
     },
     onError: (error: ApiError) => {
-      toast.error(`${error.message}`);
+      toast.error(`Login failed: ${error.message}`);
     },
   });
 
@@ -56,7 +56,7 @@ export const useAuth = () => {
       router.push('/login');
     },
     onError: (error: ApiError) => {
-      toast.error(`${error.message}`);
+      toast.error(`Registration failed: ${error.message}`);
     },
   });
 
