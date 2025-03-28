@@ -5,10 +5,19 @@ import { Button } from '../ui/button';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/apis/useAuth';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const Header = () => {
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, logout, isLoadingUser } = useAuth();
 
   const handleLogout = () => {
     logout();
@@ -25,13 +34,9 @@ const Header = () => {
               </Link>
             </div>
 
-            {user !== null && (
-              <>
-                {user.username} is logging <Button onClick={handleLogout}>Logout</Button>
-              </>
-            )}
+            {isLoadingUser && <span>Authenticating...</span>}
 
-            {user === null && (
+            {user === null && !isLoadingUser && (
               <div className="space-x-2">
                 <Button variant="default" onClick={() => router.push('/login')}>
                   Login
@@ -40,6 +45,28 @@ const Header = () => {
                   Sign Up
                 </Button>
               </div>
+            )}
+
+            {user !== null && !isLoadingUser && (
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <Avatar className="selection:bg-transparent selection:text-inherit">
+                    <AvatarImage
+                      className="bg-slate-100"
+                      src="https://cdn3.iconfinder.com/data/icons/avatars-flat/33/man_5-512.png"
+                      alt="@shadcn"
+                    />
+                  </Avatar>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="mr-5">
+                  <DropdownMenuLabel>{user.username}</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => router.push('/profile')}>
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
           </div>
         </div>
