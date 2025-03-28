@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Blog management app',
+  title: 'OurBlog - HoaHT',
   description: 'Blog management app',
 };
 
