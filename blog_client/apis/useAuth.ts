@@ -5,12 +5,14 @@ import { authService } from '@/services/auth.service';
 import { ApiError } from '@/types/error';
 import toast from 'react-hot-toast';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export const QUERY_KEYS = {
   USER: 'user',
 };
 
 export const useAuth = () => {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [isClient, setIsClient] = useState(false);
 
@@ -18,13 +20,12 @@ export const useAuth = () => {
     setIsClient(true);
   }, []);
 
-  // Query for getting user info
   const { data: userInfo, isLoading: isLoadingUser } = useQuery({
     queryKey: [QUERY_KEYS.USER],
     queryFn: authService.myInfor,
-    enabled: isClient && !!localStorage.getItem('accessToken'), // Chỉ gọi API khi ở client và có accessToken
+    enabled: isClient && !!localStorage.getItem('accessToken'),
     retry: false,
-    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 
   const login = useMutation({
@@ -33,18 +34,15 @@ export const useAuth = () => {
       if (!response.data) {
         throw new ApiError('Login failed: No data received', null, false);
       }
-      // Save tokens to localStorage
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
 
-      // Fetch user info immediately after login
       await queryClient.fetchQuery({
         queryKey: [QUERY_KEYS.USER],
         queryFn: authService.myInfor,
       });
 
-      // Navigate to home page or dashboard
-      window.location.href = '/';
+      router.push('/');
     },
     onError: (error: ApiError) => {
       toast.error(`${error.message}`);
@@ -55,8 +53,7 @@ export const useAuth = () => {
     mutationFn: authService.register,
     onSuccess: () => {
       toast.success('Registration successful! Please login.');
-      // Navigate to login page after successful registration
-      window.location.href = '/login';
+      router.push('/login');
     },
     onError: (error: ApiError) => {
       toast.error(`${error.message}`);
@@ -66,16 +63,14 @@ export const useAuth = () => {
   const revokeToken = useMutation({
     mutationFn: authService.revokeToken,
     onSuccess: () => {
-      // Clear local storage
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
 
-      // Clear user data from cache
       queryClient.removeQueries({ queryKey: [QUERY_KEYS.USER] });
 
       toast.success('Logged out successfully');
-      // Navigate to login page
-      window.location.href = '/login';
+
+      router.refresh();
     },
     onError: (error: ApiError) => {
       toast.error(`Logout failed: ${error.message}`);
