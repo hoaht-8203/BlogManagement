@@ -118,14 +118,16 @@ public class AuthServiceImpl(
 
     public async Task<RegisterResponse> Register(RegisterRequest request)
     {
-        if (await _context.Users.AnyAsync(u => u.Username == request.Username))
-        {
-            throw new ApiException("Username already exists", StatusCodes.Status400BadRequest);
-        }
+        bool userExists = await _context.Users.AnyAsync(u =>
+            u.Username == request.Username || u.Email == request.Email
+        );
 
-        if (await _context.Users.AnyAsync(u => u.Email == request.Email))
+        if (userExists)
         {
-            throw new ApiException("Email already exists", StatusCodes.Status400BadRequest);
+            throw new ApiException(
+                "Username or Email already exists",
+                StatusCodes.Status400BadRequest
+            );
         }
 
         var user = new User
@@ -135,15 +137,18 @@ public class AuthServiceImpl(
             PasswordHash = PasswordHelper.HashPassword(request.Password),
         };
 
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
-
         var defaultRole =
             await _context.Roles.FirstOrDefaultAsync(r => r.Name == AppRole.USER)
             ?? throw new ApiException(
                 "Default role not found",
                 StatusCodes.Status500InternalServerError
             );
+
+        UserRole newUserRole = new() { RoleId = defaultRole.Id, UserId = user.Id };
+
+        _context.Users.Add(user);
+        _context.UserRoles.Add(newUserRole);
+        await _context.SaveChangesAsync();
 
         return _mapper.Map<RegisterResponse>(user);
     }

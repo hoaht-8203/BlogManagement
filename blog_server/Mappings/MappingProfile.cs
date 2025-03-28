@@ -9,7 +9,8 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
-        CreateMap<User, RegisterResponse>();
+        CreateMap<User, RegisterResponse>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()));
         CreateMap<User, MyInfoResponse>();
 
         // Category

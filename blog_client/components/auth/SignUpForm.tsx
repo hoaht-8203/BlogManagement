@@ -12,23 +12,27 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
-
-const formSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-});
+import { registerSchema } from '@/schema/authSchema';
+import { useAuth } from '@/apis/useAuth';
 
 const SignUpForm = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const { register } = useAuth();
+
+  const form = useForm<z.infer<typeof registerSchema>>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
+      username: '',
       email: '',
       password: '',
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  function onSubmit(values: z.infer<typeof registerSchema>) {
+    register.mutate({
+      username: values.username,
+      email: values.email,
+      password: values.password,
+    });
   }
 
   return (
@@ -42,6 +46,19 @@ const SignUpForm = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-5">
+                <FormField
+                  control={form.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Username</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Enter your username" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="email"

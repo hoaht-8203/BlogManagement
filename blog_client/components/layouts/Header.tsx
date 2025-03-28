@@ -14,7 +14,7 @@ const Header = () => {
           <div className="flex h-14 items-center justify-between gap-3">
             <div>
               <h1 className="cursor-pointer text-2xl font-bold" onClick={() => router.push('/')}>
-                Blog Management App
+                OurBlog
               </h1>
             </div>
 
