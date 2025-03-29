@@ -63,7 +63,7 @@ OurBlog là một hệ thống quản lý blog hiện đại, được xây dự
 1. Clone repository:
 
 ```bash
-git clone https://github.com/yourusername/BlogManagement.git
+git clone https://github.com/hoaht-8203/BlogManagement.git
 cd BlogManagement/blog_server
 ```
 
@@ -163,20 +163,8 @@ npm run dev
 
 API documentation có sẵn tại `/swagger` khi chạy backend server.
 
-## Contributing
-
-1. Fork repository
-2. Tạo branch mới (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Tạo Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## Contact
 
-Your Name - [@yourtwitter](https://twitter.com/yourtwitter) - email@example.com
-
-Project Link: [https://github.com/yourusername/BlogManagement](https://github.com/yourusername/BlogManagement)
+Email: hoahthe172735@gmail.com - hoaht.dev03@gmail.com
+Facebook: [@hoaht_facebook](https://www.facebook.com/hoanghoa.8203)
+Linkedin: [@hoaht_linkedin]('https://www.linkedin.com/in/ho%C3%A0-ho%C3%A0ng-trung-22444b336/')
