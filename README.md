@@ -167,4 +167,4 @@ API documentation có sẵn tại `/swagger` khi chạy backend server.
 
 - Email: hoahthe172735@gmail.com - hoaht.dev03@gmail.com
 - Facebook: [@hoaht_facebook](https://www.facebook.com/hoanghoa.8203)
-- Linkedin: [@hoaht_linkedin]('https://www.linkedin.com/in/ho%C3%A0-ho%C3%A0ng-trung-22444b336/')
+- Linkedin: [@hoaht_linkedin](https://www.linkedin.com/in/ho%C3%A0-ho%C3%A0ng-trung-22444b336/)
