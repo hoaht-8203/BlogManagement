@@ -14,9 +14,12 @@ import { z } from 'zod';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
 import { registerSchema } from '@/schema/authSchema';
 import { useAuth } from '@/apis/useAuth';
+import { ApiError } from '@/types/error';
+import { useState } from 'react';
 
 const SignUpForm = () => {
   const { register } = useAuth();
+  const [loadingSubmitForm, setLoadingSubmitForm] = useState(false);
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -24,36 +27,60 @@ const SignUpForm = () => {
       username: '',
       email: '',
       password: '',
+      confirmPassword: '',
     },
   });
 
   function onSubmit(values: z.infer<typeof registerSchema>) {
-    register.mutate({
-      username: values.username,
-      email: values.email,
-      password: values.password,
-    });
+    setLoadingSubmitForm(true);
+    register.mutate(
+      {
+        username: values.username,
+        email: values.email,
+        password: values.password,
+      },
+      {
+        onError(error: ApiError) {
+          error.errors?.forEach((err) => {
+            const [field, message] = err.split(':');
+            form.setError(field as 'email' | 'username', {
+              type: 'server',
+              message: message,
+            });
+          });
+        },
+        onSuccess() {
+          setLoadingSubmitForm(false);
+        },
+      },
+    );
   }
 
   return (
     <>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <Card className="w-[350px]">
+          <Card className="w-[550px]">
             <CardHeader>
-              <CardTitle>Create an account</CardTitle>
-              <CardDescription>Create an account to get started.</CardDescription>
+              <CardTitle>
+                Đăng ký tài khoản <span className="text-blue-500">OurBlog</span>
+              </CardTitle>
+              <CardDescription>
+                Chào mừng bạn đến Nền tảng OurBlog! Tham gia cùng chúng tôi để tìm kiếm thông tin
+                hữu ích cần thiết để cải thiện kỹ năng IT của bạn. Vui lòng điền thông tin của bạn
+                vào biểu mẫu bên dưới để tiếp tục. .
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-5">
+              <div className="grid grid-cols-2 items-start gap-5">
                 <FormField
                   control={form.control}
                   name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Username</FormLabel>
+                      <FormLabel>Tên tài khoản (username)</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter your username" {...field} />
+                        <Input placeholder="Nhập tên tài khoản của bạn" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -76,10 +103,23 @@ const SignUpForm = () => {
                   control={form.control}
                   name="password"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
+                    <FormItem className="col-span-2">
+                      <FormLabel>Mật khẩu</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="Enter your password" {...field} />
+                        <Input type="password" placeholder="Nhập mật khẩu của bạn" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem className="col-span-2">
+                      <FormLabel>Xác nhận mật khẩu</FormLabel>
+                      <FormControl>
+                        <Input type="password" placeholder="Xác nhận mật khẩu của bạn" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -88,7 +128,9 @@ const SignUpForm = () => {
               </div>
             </CardContent>
             <CardFooter className="flex justify-end">
-              <Button type="submit">Submit</Button>
+              <Button type="submit" disabled={loadingSubmitForm}>
+                {loadingSubmitForm ? 'Đang đăng ký...' : 'Đăng ký'}
+              </Button>
             </CardFooter>
           </Card>
         </form>

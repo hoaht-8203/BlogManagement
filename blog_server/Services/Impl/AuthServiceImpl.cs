@@ -118,15 +118,25 @@ public class AuthServiceImpl(
 
     public async Task<RegisterResponse> Register(RegisterRequest request)
     {
-        bool userExists = await _context.Users.AnyAsync(u =>
-            u.Username == request.Username || u.Email == request.Email
-        );
-
-        if (userExists)
+        bool userEmailExists = await _context.Users.AnyAsync(u => u.Email == request.Email);
+        if (userEmailExists)
         {
             throw new ApiException(
-                "Username or Email already exists",
-                StatusCodes.Status400BadRequest
+                "Validation failed",
+                StatusCodes.Status400BadRequest,
+                ["email:Email đã được sử dụng"]
+            );
+        }
+
+        bool userUsernameExists = await _context.Users.AnyAsync(u =>
+            u.Username == request.Username
+        );
+        if (userUsernameExists)
+        {
+            throw new ApiException(
+                "Validation failed",
+                StatusCodes.Status400BadRequest,
+                ["username:Tên tài khoản đã được sử dụng"]
             );
         }
 
