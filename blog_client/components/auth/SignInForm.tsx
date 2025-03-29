@@ -14,11 +14,15 @@ import { z } from 'zod';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
 import { loginSchema } from '@/schema/authSchema';
 import { useAuth } from '@/apis/useAuth';
-import { ApiError } from '@/types/error';
 import GoogleSignInButton from './GoogleSignInButton';
+import Link from 'next/link';
+import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
+import { ApiError } from '@/types/error';
 
 const SignInForm = () => {
   const { login } = useAuth();
+  const [isLoadingForm, setIsLoadingForm] = useState(false);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -29,6 +33,7 @@ const SignInForm = () => {
   });
 
   function onSubmit(values: z.infer<typeof loginSchema>) {
+    setIsLoadingForm(true);
     login.mutate(
       {
         username: values.username,
@@ -36,7 +41,17 @@ const SignInForm = () => {
       },
       {
         onError(error: ApiError) {
-          console.log(error.errors);
+          setIsLoadingForm(false);
+          error.errors?.forEach((err) => {
+            const [field, message] = err.split(':');
+            form.setError(field as 'username' | 'password', {
+              type: 'server',
+              message: message,
+            });
+          });
+        },
+        onSuccess() {
+          setIsLoadingForm(false);
         },
       },
     );
@@ -46,7 +61,7 @@ const SignInForm = () => {
     <>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <Card className="w-[550px]">
+          <Card className="w-[450px]">
             <CardHeader>
               <CardTitle>
                 Đăng nhập <span className="text-blue-500">OurBlog</span>
@@ -83,21 +98,50 @@ const SignInForm = () => {
                     </FormItem>
                   )}
                 />
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background text-muted-foreground px-2">
-                      Hoặc tiếp tục với
-                    </span>
-                  </div>
-                </div>
-                <GoogleSignInButton />
               </div>
             </CardContent>
-            <CardFooter className="flex justify-end">
-              <Button type="submit">Submit</Button>
+            <CardFooter className="grid grid-cols-1 gap-3 text-center">
+              <Button type="submit" className="w-full" disabled={isLoadingForm}>
+                {isLoadingForm ? (
+                  <>
+                    <Loader2 className="animate-spin" />
+                    {'Đang đăng nhập'}
+                  </>
+                ) : (
+                  'Đăng nhập'
+                )}
+              </Button>
+
+              <div className="flex justify-between">
+                <span className="text-sm">
+                  <Link
+                    href="/forgot-password"
+                    className="text-blue-500 hover:text-blue-500/80 hover:underline"
+                  >
+                    Quên mật khẩu?
+                  </Link>
+                </span>
+                <span className="text-sm">
+                  <Link
+                    href="/sign-up"
+                    className="text-blue-500 hover:text-blue-500/80 hover:underline"
+                  >
+                    Tạo tài khoản
+                  </Link>
+                </span>
+              </div>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background text-muted-foreground px-2">
+                    Hoặc tiếp tục với
+                  </span>
+                </div>
+              </div>
+              <GoogleSignInButton />
             </CardFooter>
           </Card>
         </form>

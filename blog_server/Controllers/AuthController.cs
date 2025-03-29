@@ -74,5 +74,31 @@ namespace blog_server.Controllers
             await _authService.RevokeToken();
             return Ok(ApiResponse<object?>.SuccessResponse(null, "Token revoked successfully"));
         }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+        {
+            await _authService.ForgotPassword(request);
+            return Ok(
+                ApiResponse<object?>.SuccessResponse(
+                    null,
+                    "Mã xác thực đã được gửi đến email của bạn"
+                )
+            );
+        }
+
+        [HttpPost("verify-reset-token")]
+        public async Task<IActionResult> VerifyResetToken(
+            [FromBody] VerifyResetTokenRequest request
+        )
+        {
+            await _authService.VerifyResetToken(request);
+            return Ok(
+                ApiResponse<object?>.SuccessResponse(
+                    null,
+                    "Mật khẩu mới đã được gửi đến email của bạn"
+                )
+            );
+        }
     }
 }

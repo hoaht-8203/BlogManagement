@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using blog_server.Data;
@@ -11,9 +12,11 @@ using blog_server.Data;
 namespace blog_server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250329134534_AddResetPasswordModel")]
+    partial class AddResetPasswordModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -76,36 +79,30 @@ namespace blog_server.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
+                        .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("email");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("ExpiryTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("expiry_time");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsUsed")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_used");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Token")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("token");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("password_resets");
+                    b.ToTable("PasswordResets");
                 });
 
             modelBuilder.Entity("blog_server.Models.Role", b =>
@@ -151,18 +148,18 @@ namespace blog_server.Migrations
                         new
                         {
                             Id = 1,
-                            CreateDate = new DateTime(2025, 3, 29, 13, 53, 30, 510, DateTimeKind.Utc).AddTicks(1980),
+                            CreateDate = new DateTime(2025, 3, 29, 13, 45, 33, 854, DateTimeKind.Utc).AddTicks(1910),
                             Description = "Administrator role",
                             Name = "ADMIN",
-                            UpdateDate = new DateTime(2025, 3, 29, 13, 53, 30, 510, DateTimeKind.Utc).AddTicks(1980)
+                            UpdateDate = new DateTime(2025, 3, 29, 13, 45, 33, 854, DateTimeKind.Utc).AddTicks(1910)
                         },
                         new
                         {
                             Id = 2,
-                            CreateDate = new DateTime(2025, 3, 29, 13, 53, 30, 510, DateTimeKind.Utc).AddTicks(1980),
+                            CreateDate = new DateTime(2025, 3, 29, 13, 45, 33, 854, DateTimeKind.Utc).AddTicks(1910),
                             Description = "User role",
                             Name = "USER",
-                            UpdateDate = new DateTime(2025, 3, 29, 13, 53, 30, 510, DateTimeKind.Utc).AddTicks(1980)
+                            UpdateDate = new DateTime(2025, 3, 29, 13, 45, 33, 854, DateTimeKind.Utc).AddTicks(1910)
                         });
                 });
 
@@ -224,21 +221,21 @@ namespace blog_server.Migrations
                         new
                         {
                             Id = new Guid("96cb39f1-318f-4b17-97fb-c9bffe823a98"),
-                            CreateDate = new DateTime(2025, 3, 29, 13, 53, 30, 510, DateTimeKind.Utc).AddTicks(1980),
+                            CreateDate = new DateTime(2025, 3, 29, 13, 45, 33, 854, DateTimeKind.Utc).AddTicks(1910),
                             Email = "admin@example.com",
-                            PasswordHash = "y8H44K0t4xESt3LQx5fZWgJgoxq4tNxUnDGNYRFzLwlFtVgqhyZEiPInMa1c/GdvsUJbh8+a6CvdziWkZ1mkwHca7hqBChLMHHL8LBAagH4=",
+                            PasswordHash = "RArQ83Fy5XErGWvHWIRDeWBuP5BLaJVlTxpp1Llq8jaG8XGCUzfQe3RoeU8pYQ0hmSuTzoV7CxcxXF6cDBCG+vu/+sSsFkMZ/8rWhTKT+58=",
                             Status = 1,
-                            UpdateDate = new DateTime(2025, 3, 29, 13, 53, 30, 510, DateTimeKind.Utc).AddTicks(1980),
+                            UpdateDate = new DateTime(2025, 3, 29, 13, 45, 33, 854, DateTimeKind.Utc).AddTicks(1910),
                             Username = "admin"
                         },
                         new
                         {
                             Id = new Guid("19542f2e-d222-4a24-a786-c2dc08ccfd87"),
-                            CreateDate = new DateTime(2025, 3, 29, 13, 53, 30, 510, DateTimeKind.Utc).AddTicks(1980),
+                            CreateDate = new DateTime(2025, 3, 29, 13, 45, 33, 854, DateTimeKind.Utc).AddTicks(1910),
                             Email = "user@example.com",
-                            PasswordHash = "32F79tEHmagp3VFMpJsGIr9o4kJuIxk3S7Yc2RfxWz4iObPYg15VXzShTzO5e61zisMgtEqUhGRtSW6yHyre+zFeknGHe5HALrMWZ0wIwj0=",
+                            PasswordHash = "McM6F6gfJLegcOQOE4VbU20pMVQe1EDydRNMJ9LQdtei8WJ+nOLDLTLbS+mUYQl2ERJEoiNFJMjsoH9qsumWTXYQWHPYZ0rRfaO0FV40dX8=",
                             Status = 1,
-                            UpdateDate = new DateTime(2025, 3, 29, 13, 53, 30, 510, DateTimeKind.Utc).AddTicks(1980),
+                            UpdateDate = new DateTime(2025, 3, 29, 13, 45, 33, 854, DateTimeKind.Utc).AddTicks(1910),
                             Username = "user"
                         });
                 });
@@ -268,13 +265,13 @@ namespace blog_server.Migrations
                         {
                             UserId = new Guid("96cb39f1-318f-4b17-97fb-c9bffe823a98"),
                             RoleId = 1,
-                            JoinDate = new DateTime(2025, 3, 29, 13, 53, 30, 510, DateTimeKind.Utc).AddTicks(1980)
+                            JoinDate = new DateTime(2025, 3, 29, 13, 45, 33, 854, DateTimeKind.Utc).AddTicks(1910)
                         },
                         new
                         {
                             UserId = new Guid("19542f2e-d222-4a24-a786-c2dc08ccfd87"),
                             RoleId = 2,
-                            JoinDate = new DateTime(2025, 3, 29, 13, 53, 30, 510, DateTimeKind.Utc).AddTicks(1980)
+                            JoinDate = new DateTime(2025, 3, 29, 13, 45, 33, 854, DateTimeKind.Utc).AddTicks(1910)
                         });
                 });
 

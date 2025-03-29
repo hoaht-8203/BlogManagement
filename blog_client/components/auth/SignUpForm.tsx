@@ -16,6 +16,7 @@ import { registerSchema } from '@/schema/authSchema';
 import { useAuth } from '@/apis/useAuth';
 import { ApiError } from '@/types/error';
 import { useState } from 'react';
+import { Loader2 } from 'lucide-react';
 
 const SignUpForm = () => {
   const { register } = useAuth();
@@ -128,8 +129,15 @@ const SignUpForm = () => {
               </div>
             </CardContent>
             <CardFooter className="flex justify-end">
-              <Button type="submit" disabled={loadingSubmitForm}>
-                {loadingSubmitForm ? 'Đang đăng ký...' : 'Đăng ký'}
+              <Button className="w-full" type="submit" disabled={loadingSubmitForm}>
+                {loadingSubmitForm ? (
+                  <>
+                    <Loader2 className="animate-spin" />
+                    {'Đang đăng ký...'}
+                  </>
+                ) : (
+                  'Đăng ký'
+                )}
               </Button>
             </CardFooter>
           </Card>

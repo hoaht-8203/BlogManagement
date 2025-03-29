@@ -39,3 +39,12 @@ export interface MyInfoResponse {
   username: string;
   email: string;
 }
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface VerifyResetTokenRequest {
+  email: string;
+  token: string;
+}

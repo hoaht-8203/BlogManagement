@@ -6,5 +6,7 @@ export const API_ENDPOINTS = {
     REFRESH_TOKEN: '/auth/refresh-token',
     MY_INFO: '/auth/my-info',
     LOGOUT: '/auth/revoke',
+    FORGOT_PASSWORD: '/auth/forgot-password',
+    VERIFY_RESET_TOKEN: '/auth/verify-reset-token',
   },
 } as const;

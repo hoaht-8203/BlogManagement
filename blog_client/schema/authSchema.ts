@@ -1,8 +1,11 @@
 import { z } from 'zod';
 
 export const loginSchema = z.object({
-  username: z.string().min(1),
-  password: z.string().min(8),
+  username: z.string().min(1, { message: 'Tên tài khoản là bắt buộc' }),
+  password: z
+    .string()
+    .min(1, { message: 'Mật khẩu là bắt buộc' })
+    .min(8, { message: 'Mật khẩu cần ít nhất 8 ký tự' }),
 });
 
 export const registerSchema = z
@@ -28,3 +31,12 @@ export const registerSchema = z
     message: 'Mật khẩu xác nhận không khớp',
     path: ['confirmPassword'],
   });
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email('Email không hợp lệ'),
+});
+
+export const verifyResetTokenSchema = z.object({
+  email: z.string().email('Email không hợp lệ'),
+  token: z.string().length(6, 'Mã xác thực phải có 6 chữ số'),
+});

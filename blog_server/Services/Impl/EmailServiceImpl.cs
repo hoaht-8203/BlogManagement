@@ -135,17 +135,34 @@ public class EmailServiceImpl : IEmailService
     public async Task SendPasswordResetEmailAsync(string to, string resetToken)
     {
         var subject = "Đặt lại mật khẩu - OurBlog";
-        var resetLink = $"{_emailSettings.FromEmail}/reset-password?token={resetToken}";
         var body =
             $@"
             <h2>Đặt lại mật khẩu</h2>
             <p>Bạn đã yêu cầu đặt lại mật khẩu cho tài khoản của mình.</p>
-            <p>Vui lòng nhấp vào nút bên dưới để đặt lại mật khẩu:</p>
-            <p style='text-align: center; margin: 30px 0;'>
-                <a href='{resetLink}' class='button'>Đặt lại mật khẩu</a>
-            </p>
-            <p style='color: #dc3545;'><strong>Liên kết này sẽ hết hạn sau 1 giờ.</strong></p>
+            <p>Vui lòng sử dụng mã xác thực sau để đặt lại mật khẩu:</p>
+            <div style='background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; text-align: center;'>
+                <p style='margin: 0; font-size: 24px; font-weight: bold; letter-spacing: 5px;'>{resetToken}</p>
+            </div>
+            <p style='color: #dc3545;'><strong>Mã xác thực này sẽ hết hạn sau 15 phút.</strong></p>
             <p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng bỏ qua email này.</p>
+            <p>Trân trọng,<br>Đội ngũ OurBlog</p>
+        ";
+
+        await SendEmailAsync(to, subject, body);
+    }
+
+    public async Task SendNewPasswordEmailAsync(string to, string username, string newPassword)
+    {
+        var subject = "Mật khẩu mới - OurBlog";
+        var body =
+            $@"
+            <h2>Xin chào {username}!</h2>
+            <p>Mật khẩu mới của bạn là:</p>
+            <div style='background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;'>
+                <p style='margin: 0;'><strong>{newPassword}</strong></p>
+            </div>
+            <p style='color: #dc3545;'><strong>Vui lòng đổi mật khẩu sau khi đăng nhập để bảo mật tài khoản của bạn.</strong></p>
+            <p>Nếu bạn không yêu cầu đặt lại mật khẩu, vui lòng liên hệ với chúng tôi ngay lập tức.</p>
             <p>Trân trọng,<br>Đội ngũ OurBlog</p>
         ";
 

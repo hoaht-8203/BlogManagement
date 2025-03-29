@@ -8,6 +8,7 @@ using blog_server.Constants;
 using blog_server.Data;
 using blog_server.DTOs.Auth;
 using blog_server.Exceptions;
+using blog_server.Extensions;
 using blog_server.Helpers;
 using blog_server.Models;
 using blog_server.Sessions;
@@ -49,13 +50,18 @@ public class AuthServiceImpl(
                     && u.Status == AppStatus.Active
                 )
             ?? throw new ApiException(
-                "Invalid username or password",
-                StatusCodes.Status400BadRequest
+                "Authentication failed",
+                StatusCodes.Status400BadRequest,
+                ["username:Email hoặc tên tài khoản không tồn tại"]
             );
 
         if (!PasswordHelper.VerifyPassword(request.Password, user.PasswordHash))
         {
-            throw new ApiException("Invalid username or password", StatusCodes.Status400BadRequest);
+            throw new ApiException(
+                "Authentication failed",
+                StatusCodes.Status400BadRequest,
+                ["password:Mật khẩu không chính xác"]
+            );
         }
 
         var accessToken = GenerateAccessToken(user);
@@ -308,23 +314,16 @@ public class AuthServiceImpl(
             _context.UserRoles.Add(newUserRole);
             await _context.SaveChangesAsync();
 
-            // Send welcome email asynchronously without waiting
-            _ = Task.Run(async () =>
-            {
-                try
-                {
-                    await _emailService.SendWelcomeEmailWithPasswordAsync(
+            _emailService.SendEmailFireAndForget(
+                () =>
+                    _emailService.SendWelcomeEmailWithPasswordAsync(
                         user.Email,
                         user.Username,
                         password
-                    );
-                }
-                catch (Exception ex)
-                {
-                    // Log error but don't throw
-                    _logger.LogError(ex, "Failed to send welcome email to {Email}", user.Email);
-                }
-            });
+                    ),
+                _logger,
+                user.Email
+            );
         }
 
         var accessToken = GenerateAccessToken(user);
@@ -346,6 +345,89 @@ public class AuthServiceImpl(
             Username = user.Username,
             Roles = listRole,
         };
+    }
+
+    public async Task ForgotPassword(ForgotPasswordRequest request)
+    {
+        var user =
+            await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email)
+            ?? throw new ApiException(
+                "Send password reset email failed",
+                StatusCodes.Status404NotFound,
+                ["email:Email không tồn tại"]
+            );
+
+        // Delete any existing unused tokens for this email
+        var existingTokens = await _context
+            .PasswordResets.Where(pr => pr.Email == request.Email && !pr.IsUsed)
+            .ToListAsync();
+
+        if (existingTokens.Count != 0)
+        {
+            _context.PasswordResets.RemoveRange(existingTokens);
+        }
+
+        // Generate 6-digit token
+        var random = new Random();
+        var token = random.Next(100000, 999999).ToString();
+
+        // Create new password reset record
+        var passwordReset = new PasswordReset
+        {
+            Email = request.Email,
+            Token = token,
+            ExpiryTime = DateTime.UtcNow.AddMinutes(15),
+            IsUsed = false,
+        };
+
+        _context.PasswordResets.Add(passwordReset);
+        await _context.SaveChangesAsync();
+
+        _emailService.SendEmailFireAndForget(
+            () => _emailService.SendPasswordResetEmailAsync(request.Email, token),
+            _logger,
+            request.Email
+        );
+    }
+
+    public async Task VerifyResetToken(VerifyResetTokenRequest request)
+    {
+        var passwordReset =
+            await _context.PasswordResets.FirstOrDefaultAsync(pr =>
+                pr.Email == request.Email
+                && pr.Token == request.Token
+                && !pr.IsUsed
+                && pr.ExpiryTime > DateTime.UtcNow
+            )
+            ?? throw new ApiException(
+                "Verify reset token failed",
+                StatusCodes.Status400BadRequest,
+                ["token:Mã xác thực không hợp lệ hoặc đã hết hạn"]
+            );
+
+        // Generate new password
+        var newPassword = PasswordHelper.GenerateRandomPassword();
+
+        // Update user password
+        var user =
+            await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email)
+            ?? throw new ApiException(
+                "Verify reset token failed",
+                StatusCodes.Status400BadRequest,
+                ["email:Email không tồn tại"]
+            );
+        user.PasswordHash = PasswordHelper.HashPassword(newPassword);
+
+        // Remove the used token
+        _context.PasswordResets.Remove(passwordReset);
+
+        await _context.SaveChangesAsync();
+
+        _emailService.SendEmailFireAndForget(
+            () => _emailService.SendNewPasswordEmailAsync(user.Email, user.Username, newPassword),
+            _logger,
+            user.Email
+        );
     }
 }
 

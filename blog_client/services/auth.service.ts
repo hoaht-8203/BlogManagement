@@ -10,6 +10,8 @@ import {
   RegisterResponse,
   RefreshTokenResponse,
   GoogleLoginRequest,
+  ForgotPasswordRequest,
+  VerifyResetTokenRequest,
 } from '@/types/auth';
 
 export const authService = {
@@ -43,6 +45,16 @@ export const authService = {
 
   revokeToken: async (): Promise<ApiResponse<null>> => {
     const response = await axiosInstance.post(API_ENDPOINTS.AUTH.LOGOUT);
+    return response.data;
+  },
+
+  forgotPassword: async (data: ForgotPasswordRequest): Promise<ApiResponse<string>> => {
+    const response = await axiosInstance.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, data);
+    return response.data;
+  },
+
+  verifyResetToken: async (data: VerifyResetTokenRequest): Promise<ApiResponse<string>> => {
+    const response = await axiosInstance.post(API_ENDPOINTS.AUTH.VERIFY_RESET_TOKEN, data);
     return response.data;
   },
 };

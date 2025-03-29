@@ -105,6 +105,27 @@ export const useAuth = () => {
     revokeToken.mutate();
   };
 
+  const forgotPassword = useMutation({
+    mutationFn: authService.forgotPassword,
+    onSuccess: () => {
+      toast.success('Mã xác thực đã được gửi đến email của bạn');
+    },
+    onError: (error: ApiError) => {
+      toast.error(`${error.message}`);
+    },
+  });
+
+  const verifyResetToken = useMutation({
+    mutationFn: authService.verifyResetToken,
+    onSuccess: () => {
+      toast.success('Mật khẩu mới đã được gửi đến email của bạn');
+      router.push('/login');
+    },
+    onError: (error: ApiError) => {
+      toast.error(`${error.message}`);
+    },
+  });
+
   return {
     login,
     googleLogin,
@@ -113,5 +134,7 @@ export const useAuth = () => {
     revokeToken,
     user: userInfo?.data || null,
     isLoadingUser: !isClient || isLoadingUser,
+    forgotPassword,
+    verifyResetToken,
   };
 };
