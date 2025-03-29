@@ -8,7 +8,8 @@ import {
   RefreshTokenRequest,
   RegisterRequest,
   RegisterResponse,
-  TokenResponse,
+  RefreshTokenResponse,
+  GoogleLoginRequest,
 } from '@/types/auth';
 
 export const authService = {
@@ -17,12 +18,20 @@ export const authService = {
     return response.data;
   },
 
+  googleLogin: async (data: GoogleLoginRequest): Promise<ApiResponse<LoginResponse>> => {
+    const response = await axiosInstance.post<ApiResponse<LoginResponse>>(
+      '/auth/google-login',
+      data,
+    );
+    return response.data;
+  },
+
   register: async (data: RegisterRequest): Promise<ApiResponse<RegisterResponse>> => {
     const response = await axiosInstance.post(API_ENDPOINTS.AUTH.REGISTER, data);
     return response.data;
   },
 
-  refreshToken: async (data: RefreshTokenRequest): Promise<ApiResponse<TokenResponse>> => {
+  refreshToken: async (data: RefreshTokenRequest): Promise<ApiResponse<RefreshTokenResponse>> => {
     const response = await axiosInstance.post(API_ENDPOINTS.AUTH.REFRESH_TOKEN, data);
     return response.data;
   },

@@ -3,6 +3,10 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface GoogleLoginRequest {
+  idToken: string;
+}
+
 export interface LoginResponse {
   accessToken: string;
   refreshToken: string;
@@ -26,7 +30,7 @@ export interface RefreshTokenRequest {
   refreshToken: string;
 }
 
-export interface TokenResponse {
+export interface RefreshTokenResponse {
   accessToken: string;
   refreshToken: string;
 }

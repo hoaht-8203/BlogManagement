@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -49,6 +50,29 @@ export const useAuth = () => {
     },
   });
 
+  const googleLogin = useMutation({
+    mutationFn: authService.googleLogin,
+    onSuccess: async (response) => {
+      if (!response.data) {
+        throw new ApiError('Google login failed: No data received', null, false);
+      }
+      console.log('GO TO HERE', response.data);
+
+      localStorage.setItem('accessToken', response.data.accessToken);
+      localStorage.setItem('refreshToken', response.data.refreshToken);
+
+      await queryClient.fetchQuery({
+        queryKey: [QUERY_KEYS.USER],
+        queryFn: authService.myInfor,
+      });
+
+      router.push('/');
+    },
+    onError: (error: ApiError) => {
+      toast.error(`Google login failed: ${error.message}`);
+    },
+  });
+
   const register = useMutation({
     mutationFn: authService.register,
     onSuccess: () => {
@@ -83,6 +107,7 @@ export const useAuth = () => {
 
   return {
     login,
+    googleLogin,
     register,
     logout,
     revokeToken,

@@ -1,13 +1,11 @@
 'use client';
 
-import LoginForm from '@/components/auth/LoginForm';
-import SignUpForm from '@/components/auth/SignUpForm';
-import React from 'react';
+import SignInForm from '@/components/auth/SignInForm';
 
 const LoginPage = () => {
   return (
     <div className="mt-5 flex justify-center">
-      <LoginForm />
+      <SignInForm />
     </div>
   );
 };

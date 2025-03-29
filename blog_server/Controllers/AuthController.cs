@@ -21,6 +21,17 @@ namespace blog_server.Controllers
             return Ok(ApiResponse<LoginResponse>.SuccessResponse(response, "Login successful"));
         }
 
+        [HttpPost("google-login")]
+        public async Task<ActionResult<ApiResponse<LoginResponse>>> GoogleLogin(
+            GoogleLoginRequest request
+        )
+        {
+            var response = await _authService.GoogleLogin(request);
+            return Ok(
+                ApiResponse<LoginResponse>.SuccessResponse(response, "Google login successful")
+            );
+        }
+
         [HttpPost("register")]
         public async Task<ActionResult<ApiResponse<RegisterResponse>>> Register(
             RegisterRequest request
@@ -60,13 +71,7 @@ namespace blog_server.Controllers
         [HttpPost("revoke")]
         public async Task<ActionResult<ApiResponse<object?>>> RevokeToken()
         {
-            var username = User.Identity?.Name;
-            if (username == null)
-            {
-                return Unauthorized(ApiResponse<object?>.ErrorResponse("Unauthorized"));
-            }
-
-            await _authService.RevokeToken(username);
+            await _authService.RevokeToken();
             return Ok(ApiResponse<object?>.SuccessResponse(null, "Token revoked successfully"));
         }
     }

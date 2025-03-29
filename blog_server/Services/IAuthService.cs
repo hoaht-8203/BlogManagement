@@ -5,8 +5,9 @@ namespace blog_server.Services;
 public interface IAuthService
 {
     public Task<LoginResponse> Login(LoginRequest request);
+    public Task<LoginResponse> GoogleLogin(GoogleLoginRequest request);
     public Task<RegisterResponse> Register(RegisterRequest request);
     public Task<RefreshTokenResponse> RefreshToken(RefreshTokenRequest request);
-    public Task RevokeToken(string username);
+    public Task RevokeToken();
     public Task<MyInfoResponse> MyInfo();
 }

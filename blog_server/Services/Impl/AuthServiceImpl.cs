@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -20,13 +21,17 @@ public class AuthServiceImpl(
     ApplicationDbContext context,
     IMapper mapper,
     IOptions<JwtSettings> jwtSettings,
-    ICurrentUser currentUser
+    IOptions<GoogleAuthSettings> googleAuthSettings,
+    ICurrentUser currentUser,
+    IHttpClientFactory httpClientFactory
 ) : IAuthService
 {
     private readonly ApplicationDbContext _context = context;
     private readonly IMapper _mapper = mapper;
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
+    private readonly GoogleAuthSettings _googleAuthSettings = googleAuthSettings.Value;
     private readonly ICurrentUser _currentUser = currentUser;
+    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
 
     public async Task<LoginResponse> Login(LoginRequest request)
     {
@@ -73,7 +78,7 @@ public class AuthServiceImpl(
     {
         var user =
             await _context.Users.SingleOrDefaultAsync(u =>
-                u.Username == _currentUser.Username && u.Status == AppStatus.Active
+                u.Id == _currentUser.UserId && u.Status == AppStatus.Active
             ) ?? throw new ApiException("User not found", StatusCodes.Status404NotFound);
 
         return _mapper.Map<MyInfoResponse>(user);
@@ -163,11 +168,11 @@ public class AuthServiceImpl(
         return _mapper.Map<RegisterResponse>(user);
     }
 
-    public async Task RevokeToken(string username)
+    public async Task RevokeToken()
     {
         var user =
             await _context.Users.SingleOrDefaultAsync(u =>
-                u.Username == username && u.Status == AppStatus.Active
+                u.Id == _currentUser.UserId && u.Status == AppStatus.Active
             ) ?? throw new ApiException("User not found", StatusCodes.Status404NotFound);
 
         user.RefreshToken = null;
@@ -244,4 +249,84 @@ public class AuthServiceImpl(
 
         return principal;
     }
+
+    public async Task<LoginResponse> GoogleLogin(GoogleLoginRequest request)
+    {
+        var httpClient = _httpClientFactory.CreateClient();
+
+        // Verify the ID token with Google
+        var response = await httpClient.GetAsync(
+            $"https://oauth2.googleapis.com/tokeninfo?id_token={request.IdToken}"
+        );
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new ApiException("Invalid Google token", StatusCodes.Status400BadRequest);
+        }
+
+        var tokenInfo = await response.Content.ReadFromJsonAsync<GoogleTokenInfo>();
+        if (tokenInfo == null || tokenInfo.Aud != _googleAuthSettings.ClientId)
+        {
+            throw new ApiException("Invalid Google token", StatusCodes.Status400BadRequest);
+        }
+
+        // Check if user exists
+        var user = await _context
+            .Users.Include(u => u.UserRoles)
+            .ThenInclude(ur => ur.Role)
+            .SingleOrDefaultAsync(u => u.Email == tokenInfo.Email);
+
+        if (user == null)
+        {
+            // Create new user if doesn't exist
+            user = new User
+            {
+                Username = tokenInfo.Email.Split('@')[0],
+                Email = tokenInfo.Email,
+                PasswordHash = PasswordHelper.HashPassword(Guid.NewGuid().ToString()), // Random password for Google users
+            };
+
+            var defaultRole =
+                await _context.Roles.FirstOrDefaultAsync(r => r.Name == AppRole.USER)
+                ?? throw new ApiException(
+                    "Default role not found",
+                    StatusCodes.Status500InternalServerError
+                );
+
+            UserRole newUserRole = new() { RoleId = defaultRole.Id, UserId = user.Id };
+
+            _context.Users.Add(user);
+            _context.UserRoles.Add(newUserRole);
+            await _context.SaveChangesAsync();
+        }
+
+        var accessToken = GenerateAccessToken(user);
+        var refreshToken = GenerateRefreshToken();
+
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(
+            _jwtSettings.RefreshTokenDurationInDays
+        );
+
+        await _context.SaveChangesAsync();
+
+        var listRole = user.UserRoles.Select(ur => ur.Role.Name.ToString()).ToList();
+
+        return new LoginResponse
+        {
+            AccessToken = accessToken,
+            RefreshToken = refreshToken,
+            Username = user.Username,
+            Roles = listRole,
+        };
+    }
+}
+
+public class GoogleTokenInfo
+{
+    public string Email { get; set; } = string.Empty;
+    public string Aud { get; set; } = string.Empty;
+    public string Sub { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string Picture { get; set; } = string.Empty;
 }
