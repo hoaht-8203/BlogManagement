@@ -23,7 +23,7 @@ export default function ForgotPasswordPage() {
           <CardTitle>{step === 'request' ? 'Quên mật khẩu' : 'Xác thực mã'}</CardTitle>
           <CardDescription>
             {step === 'request'
-              ? 'Bạn quên mật khẩu của mình? Đừng lo lắng! Hãy cung cấp cho chúng tôi email bạn sử dụng để đăng ký tài khoản OurBlog. Chúng tôi sẽ gửi cho bạn một liên kết để đặt lại mật khẩu của bạn qua email đó.'
+              ? 'Bạn quên mật khẩu của mình? Đừng lo lắng! Hãy cung cấp cho chúng tôi email bạn sử dụng để đăng ký tài khoản OurBlog. Chúng tôi sẽ gửi cho bạn một mật khẩu mới cho bạn qua email đó.'
               : 'Nhập mã xác thực đã được gửi đến email của bạn'}
           </CardDescription>
         </CardHeader>
