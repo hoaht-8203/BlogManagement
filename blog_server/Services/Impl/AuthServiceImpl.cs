@@ -12,6 +12,7 @@ using blog_server.Helpers;
 using blog_server.Models;
 using blog_server.Sessions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -23,7 +24,9 @@ public class AuthServiceImpl(
     IOptions<JwtSettings> jwtSettings,
     IOptions<GoogleAuthSettings> googleAuthSettings,
     ICurrentUser currentUser,
-    IHttpClientFactory httpClientFactory
+    IHttpClientFactory httpClientFactory,
+    IEmailService emailService,
+    ILogger<AuthServiceImpl> logger
 ) : IAuthService
 {
     private readonly ApplicationDbContext _context = context;
@@ -32,6 +35,8 @@ public class AuthServiceImpl(
     private readonly GoogleAuthSettings _googleAuthSettings = googleAuthSettings.Value;
     private readonly ICurrentUser _currentUser = currentUser;
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+    private readonly IEmailService _emailService = emailService;
+    private readonly ILogger<AuthServiceImpl> _logger = logger;
 
     public async Task<LoginResponse> Login(LoginRequest request)
     {
@@ -165,6 +170,9 @@ public class AuthServiceImpl(
         _context.UserRoles.Add(newUserRole);
         await _context.SaveChangesAsync();
 
+        // Send welcome email
+        await _emailService.SendWelcomeEmailAsync(user.Email, user.Username);
+
         return _mapper.Map<RegisterResponse>(user);
     }
 
@@ -279,11 +287,12 @@ public class AuthServiceImpl(
         if (user == null)
         {
             // Create new user if doesn't exist
+            var password = PasswordHelper.GenerateRandomPassword();
             user = new User
             {
-                Username = tokenInfo.Email.Split('@')[0],
+                Username = tokenInfo.Email,
                 Email = tokenInfo.Email,
-                PasswordHash = PasswordHelper.HashPassword(Guid.NewGuid().ToString()), // Random password for Google users
+                PasswordHash = PasswordHelper.HashPassword(password),
             };
 
             var defaultRole =
@@ -298,6 +307,24 @@ public class AuthServiceImpl(
             _context.Users.Add(user);
             _context.UserRoles.Add(newUserRole);
             await _context.SaveChangesAsync();
+
+            // Send welcome email asynchronously without waiting
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await _emailService.SendWelcomeEmailWithPasswordAsync(
+                        user.Email,
+                        user.Username,
+                        password
+                    );
+                }
+                catch (Exception ex)
+                {
+                    // Log error but don't throw
+                    _logger.LogError(ex, "Failed to send welcome email to {Email}", user.Email);
+                }
+            });
         }
 
         var accessToken = GenerateAccessToken(user);

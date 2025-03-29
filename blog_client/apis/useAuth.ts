@@ -94,7 +94,7 @@ export const useAuth = () => {
 
       toast.success('Logged out successfully');
 
-      router.refresh();
+      router.push('/');
     },
     onError: (error: ApiError) => {
       toast.error(`Logout failed: ${error.message}`);

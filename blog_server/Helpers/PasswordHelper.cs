@@ -5,6 +5,24 @@ namespace blog_server.Helpers;
 
 public static class PasswordHelper
 {
+    private static readonly string ValidChars =
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_+";
+
+    public static string GenerateRandomPassword(int length = 8)
+    {
+        using var rng = RandomNumberGenerator.Create();
+        var bytes = new byte[length];
+        rng.GetBytes(bytes);
+
+        var password = new StringBuilder();
+        for (int i = 0; i < length; i++)
+        {
+            password.Append(ValidChars[bytes[i] % ValidChars.Length]);
+        }
+
+        return password.ToString();
+    }
+
     public static string HashPassword(string password)
     {
         // Generate a random salt

@@ -10,7 +10,10 @@ export const registerSchema = z
     username: z
       .string()
       .min(1, { message: 'Tên tài khoản là bắt buộc' })
-      .max(255, { message: 'Tên tài khoản không vượt quá 255 ký tự' }),
+      .max(255, { message: 'Tên tài khoản không vượt quá 255 ký tự' })
+      .regex(/^[a-zA-Z0-9_.]+$/, {
+        message: 'Tên tài khoản chỉ được chứa chữ cái không dấu, số và dấu gạch dưới',
+      }),
     email: z
       .string()
       .min(1, { message: 'Email là bắt buộc' })
@@ -22,6 +25,6 @@ export const registerSchema = z
     confirmPassword: z.string().min(1, { message: 'Xác nhận mật khẩu là bắt buộc' }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'Mật khảu xác nhận không khớp',
+    message: 'Mật khẩu xác nhận không khớp',
     path: ['confirmPassword'],
   });
