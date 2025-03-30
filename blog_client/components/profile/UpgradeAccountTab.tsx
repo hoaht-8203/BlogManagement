@@ -17,7 +17,7 @@ const plans = [
   },
   {
     name: 'Pro',
-    price: '9.99',
+    price: '149.000',
     features: [
       'Tất cả tính năng của Basic',
       'Đăng bài viết không giới hạn',
@@ -29,7 +29,7 @@ const plans = [
   },
   {
     name: 'Enterprise',
-    price: '29.99',
+    price: '349.000',
     features: ['Tất cả tính năng của Pro', 'Học khoá học bản Enterprise', 'Hỗ trợ 24/7'],
     current: false,
   },
@@ -59,7 +59,7 @@ const UpgradeAccountTab = () => {
             <div className="space-y-2">
               <h3 className="text-xl font-semibold">{plan.name}</h3>
               <div className="text-3xl font-bold">
-                ${plan.price}
+                {plan.price === '0' ? 'Miễn phí' : `${plan.price}đ`}
                 <span className="text-muted-foreground text-sm font-normal">/tháng</span>
               </div>
             </div>
