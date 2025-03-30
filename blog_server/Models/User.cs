@@ -27,5 +27,7 @@ public class User : BaseEntity
     [Column("status")]
     public AppStatus Status { get; set; } = AppStatus.Active;
 
+    [Column("is_email_verified")]
+    public bool IsEmailVerified { get; set; } = false;
     public ICollection<UserRole> UserRoles { get; set; } = [];
 }

@@ -64,6 +64,15 @@ public class AuthServiceImpl(
             );
         }
 
+        if (!user.IsEmailVerified)
+        {
+            throw new ApiException(
+                "Email not verified",
+                StatusCodes.Status400BadRequest,
+                ["email:Email chưa được xác thực"]
+            );
+        }
+
         var accessToken = GenerateAccessToken(user);
         var refreshToken = GenerateRefreshToken();
 
@@ -174,10 +183,26 @@ public class AuthServiceImpl(
 
         _context.Users.Add(user);
         _context.UserRoles.Add(newUserRole);
+
+        var random = new Random();
+        var token = random.Next(100000, 999999).ToString();
+        var emailVerificationToken = new UserToken
+        {
+            Email = user.Email,
+            Token = token,
+            TokenType = TokenTypes.EmailVerification,
+            ExpiryTime = DateTime.UtcNow.AddDays(1),
+            IsUsed = false,
+        };
+
+        _context.UserTokens.Add(emailVerificationToken);
         await _context.SaveChangesAsync();
 
-        // Send welcome email
-        await _emailService.SendWelcomeEmailAsync(user.Email, user.Username);
+        _emailService.SendEmailFireAndForget(
+            () => _emailService.SendEmailVerificationEmailAsync(user.Email, token),
+            _logger,
+            user.Email
+        );
 
         return _mapper.Map<RegisterResponse>(user);
     }
@@ -359,12 +384,12 @@ public class AuthServiceImpl(
 
         // Delete any existing unused tokens for this email
         var existingTokens = await _context
-            .PasswordResets.Where(pr => pr.Email == request.Email && !pr.IsUsed)
+            .UserTokens.Where(pr => pr.Email == request.Email && !pr.IsUsed)
             .ToListAsync();
 
         if (existingTokens.Count != 0)
         {
-            _context.PasswordResets.RemoveRange(existingTokens);
+            _context.UserTokens.RemoveRange(existingTokens);
         }
 
         // Generate 6-digit token
@@ -372,15 +397,16 @@ public class AuthServiceImpl(
         var token = random.Next(100000, 999999).ToString();
 
         // Create new password reset record
-        var passwordReset = new PasswordReset
+        var newToken = new UserToken
         {
             Email = request.Email,
             Token = token,
+            TokenType = TokenTypes.PasswordReset,
             ExpiryTime = DateTime.UtcNow.AddMinutes(15),
             IsUsed = false,
         };
 
-        _context.PasswordResets.Add(passwordReset);
+        _context.UserTokens.Add(newToken);
         await _context.SaveChangesAsync();
 
         _emailService.SendEmailFireAndForget(
@@ -392,10 +418,11 @@ public class AuthServiceImpl(
 
     public async Task VerifyResetToken(VerifyResetTokenRequest request)
     {
-        var passwordReset =
-            await _context.PasswordResets.FirstOrDefaultAsync(pr =>
+        var passwordResetToken =
+            await _context.UserTokens.FirstOrDefaultAsync(pr =>
                 pr.Email == request.Email
                 && pr.Token == request.Token
+                && pr.TokenType == TokenTypes.PasswordReset
                 && !pr.IsUsed
                 && pr.ExpiryTime > DateTime.UtcNow
             )
@@ -419,7 +446,7 @@ public class AuthServiceImpl(
         user.PasswordHash = PasswordHelper.HashPassword(newPassword);
 
         // Remove the used token
-        _context.PasswordResets.Remove(passwordReset);
+        _context.UserTokens.Remove(passwordResetToken);
 
         await _context.SaveChangesAsync();
 
@@ -428,6 +455,36 @@ public class AuthServiceImpl(
             _logger,
             user.Email
         );
+    }
+
+    public async Task VerifyEmail(VerifyEmailRequest request)
+    {
+        var emailVerificationToken =
+            await _context.UserTokens.FirstOrDefaultAsync(pr =>
+                pr.Email == request.Email
+                && pr.Token == request.Token
+                && pr.TokenType == TokenTypes.EmailVerification
+                && !pr.IsUsed
+                && pr.ExpiryTime > DateTime.UtcNow
+            )
+            ?? throw new ApiException(
+                "Verify email failed",
+                StatusCodes.Status400BadRequest,
+                ["token:Mã xác thực không hợp lệ hoặc đã hết hạn"]
+            );
+
+        var user =
+            await _context.Users.FirstOrDefaultAsync(u => u.Email == request.Email)
+            ?? throw new ApiException(
+                "Verify email failed",
+                StatusCodes.Status400BadRequest,
+                ["email:Email không tồn tại"]
+            );
+
+        user.IsEmailVerified = true;
+        _context.UserTokens.Remove(emailVerificationToken);
+
+        await _context.SaveChangesAsync();
     }
 }
 

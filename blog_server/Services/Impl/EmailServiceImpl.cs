@@ -168,4 +168,23 @@ public class EmailServiceImpl : IEmailService
 
         await SendEmailAsync(to, subject, body);
     }
+
+    public async Task SendEmailVerificationEmailAsync(string to, string token)
+    {
+        var subject = "Xác thực email - OurBlog";
+        var body =
+            $@"
+            <h2>Xác thực email</h2>
+            <p>Bạn đã yêu cầu xác thực email cho tài khoản của mình.</p>
+            <p>Vui lòng sử dụng mã xác thực sau để xác thực email:</p>
+            <div style='background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; text-align: center;'>
+                <p style='margin: 0; font-size: 24px; font-weight: bold; letter-spacing: 5px;'>{token}</p>
+            </div>
+            <p style='color: #dc3545;'><strong>Mã xác thực này sẽ hết hạn sau 1 ngày.</strong></p>
+            <p>Nếu bạn không yêu cầu xác thực email, vui lòng bỏ qua email này.</p>
+            <p>Trân trọng,<br>Đội ngũ OurBlog</p>
+        ";
+
+        await SendEmailAsync(to, subject, body);
+    }
 }

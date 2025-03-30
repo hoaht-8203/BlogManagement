@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace blog_server.Models;
 
-[Table("password_resets")]
-public class PasswordReset
+[Table("user_tokens")]
+public class UserToken
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -13,6 +13,9 @@ public class PasswordReset
 
     [Column("email")]
     public string Email { get; set; } = string.Empty;
+
+    [Column("token_type")]
+    public string TokenType { get; set; } = string.Empty;
 
     [Column("token")]
     public string Token { get; set; } = string.Empty;

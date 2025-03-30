@@ -12,4 +12,5 @@ public interface IAuthService
     public Task<MyInfoResponse> MyInfo();
     public Task ForgotPassword(ForgotPasswordRequest request);
     public Task VerifyResetToken(VerifyResetTokenRequest request);
+    public Task VerifyEmail(VerifyEmailRequest request);
 }

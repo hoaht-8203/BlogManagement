@@ -100,5 +100,12 @@ namespace blog_server.Controllers
                 )
             );
         }
+
+        [HttpPost("verify-email")]
+        public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailRequest request)
+        {
+            await _authService.VerifyEmail(request);
+            return Ok(ApiResponse<object?>.SuccessResponse(null, "Email đã được xác thực"));
+        }
     }
 }
