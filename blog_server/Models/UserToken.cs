@@ -23,9 +23,6 @@ public class UserToken
     [Column("expiry_time")]
     public DateTime ExpiryTime { get; set; }
 
-    [Column("is_used")]
-    public bool IsUsed { get; set; }
-
     [Column("created_at")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

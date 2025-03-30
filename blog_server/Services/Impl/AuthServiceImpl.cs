@@ -192,7 +192,6 @@ public class AuthServiceImpl(
             Token = token,
             TokenType = TokenTypes.EmailVerification,
             ExpiryTime = DateTime.UtcNow.AddDays(1),
-            IsUsed = false,
         };
 
         _context.UserTokens.Add(emailVerificationToken);
@@ -324,6 +323,7 @@ public class AuthServiceImpl(
                 Username = tokenInfo.Email,
                 Email = tokenInfo.Email,
                 PasswordHash = PasswordHelper.HashPassword(password),
+                IsEmailVerified = true,
             };
 
             var defaultRole =
@@ -382,14 +382,15 @@ public class AuthServiceImpl(
                 ["email:Email không tồn tại"]
             );
 
-        // Delete any existing unused tokens for this email
-        var existingTokens = await _context
-            .UserTokens.Where(pr => pr.Email == request.Email && !pr.IsUsed)
+        var existingPasswordResetTokens = await _context
+            .UserTokens.Where(pr =>
+                pr.Email == request.Email && pr.TokenType == TokenTypes.PasswordReset
+            )
             .ToListAsync();
 
-        if (existingTokens.Count != 0)
+        if (existingPasswordResetTokens.Count != 0)
         {
-            _context.UserTokens.RemoveRange(existingTokens);
+            _context.UserTokens.RemoveRange(existingPasswordResetTokens);
         }
 
         // Generate 6-digit token
@@ -403,7 +404,6 @@ public class AuthServiceImpl(
             Token = token,
             TokenType = TokenTypes.PasswordReset,
             ExpiryTime = DateTime.UtcNow.AddMinutes(15),
-            IsUsed = false,
         };
 
         _context.UserTokens.Add(newToken);
@@ -423,7 +423,6 @@ public class AuthServiceImpl(
                 pr.Email == request.Email
                 && pr.Token == request.Token
                 && pr.TokenType == TokenTypes.PasswordReset
-                && !pr.IsUsed
                 && pr.ExpiryTime > DateTime.UtcNow
             )
             ?? throw new ApiException(
@@ -459,12 +458,22 @@ public class AuthServiceImpl(
 
     public async Task VerifyEmail(VerifyEmailRequest request)
     {
+        var existingEmailVerificationTokens = await _context
+            .UserTokens.Where(pr =>
+                pr.Email == request.Email && pr.TokenType == TokenTypes.EmailVerification
+            )
+            .ToListAsync();
+
+        if (existingEmailVerificationTokens.Count != 0)
+        {
+            _context.UserTokens.RemoveRange(existingEmailVerificationTokens);
+        }
+
         var emailVerificationToken =
             await _context.UserTokens.FirstOrDefaultAsync(pr =>
                 pr.Email == request.Email
                 && pr.Token == request.Token
                 && pr.TokenType == TokenTypes.EmailVerification
-                && !pr.IsUsed
                 && pr.ExpiryTime > DateTime.UtcNow
             )
             ?? throw new ApiException(
@@ -480,6 +489,15 @@ public class AuthServiceImpl(
                 StatusCodes.Status400BadRequest,
                 ["email:Email không tồn tại"]
             );
+
+        if (user.IsEmailVerified)
+        {
+            throw new ApiException(
+                "Email already verified",
+                StatusCodes.Status400BadRequest,
+                ["email:Email đã được xác thực"]
+            );
+        }
 
         user.IsEmailVerified = true;
         _context.UserTokens.Remove(emailVerificationToken);
