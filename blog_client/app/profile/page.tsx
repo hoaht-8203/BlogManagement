@@ -1,7 +1,13 @@
 'use client';
 
+import MyProfile from '@/components/profile/MyProfile';
+
 const ProfilePage = () => {
-  return <div className="mt-5 flex justify-center">This is user profile page</div>;
+  return (
+    <div className="container mx-auto mt-5">
+      <MyProfile />
+    </div>
+  );
 };
 
 export default ProfilePage;

@@ -1,11 +1,7 @@
 'use client';
 
-import React from 'react';
-import { Button } from '../ui/button';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/apis/useAuth';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +10,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Button } from '../ui/button';
 
 const Header = () => {
   const router = useRouter();
