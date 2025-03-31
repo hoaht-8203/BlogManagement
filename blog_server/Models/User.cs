@@ -18,6 +18,12 @@ public class User : BaseEntity
     [Column("password_hash")]
     public string PasswordHash { get; set; } = string.Empty;
 
+    [Column("phone")]
+    public string? Phone { get; set; }
+
+    [Column("avatar_url")]
+    public string? AvatarUrl { get; set; }
+
     [Column("refresh_token")]
     public string? RefreshToken { get; set; }
 
