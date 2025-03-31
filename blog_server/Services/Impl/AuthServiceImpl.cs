@@ -27,6 +27,7 @@ public class AuthServiceImpl(
     ICurrentUser currentUser,
     IHttpClientFactory httpClientFactory,
     IEmailService emailService,
+    IRedisCacheService redisCache,
     ILogger<AuthServiceImpl> logger
 ) : IAuthService
 {
@@ -37,7 +38,11 @@ public class AuthServiceImpl(
     private readonly ICurrentUser _currentUser = currentUser;
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
     private readonly IEmailService _emailService = emailService;
+    private readonly IRedisCacheService _redisCache = redisCache;
     private readonly ILogger<AuthServiceImpl> _logger = logger;
+
+    private const string USER_CACHE_KEY_PREFIX = "user:";
+    private static readonly TimeSpan CACHE_DURATION = TimeSpan.FromMinutes(30);
 
     public async Task<LoginResponse> Login(LoginRequest request)
     {
@@ -85,6 +90,15 @@ public class AuthServiceImpl(
 
         var listRole = user.UserRoles.Select(ur => ur.Role.Name.ToString()).ToList();
 
+        // Cache user information
+        var userCacheDto = _mapper.Map<UserCacheDto>(user);
+        userCacheDto.Roles = listRole;
+        await _redisCache.SetAsync(
+            $"{USER_CACHE_KEY_PREFIX}{user.Id}",
+            userCacheDto,
+            CACHE_DURATION
+        );
+
         return new LoginResponse
         {
             AccessToken = accessToken,
@@ -96,12 +110,26 @@ public class AuthServiceImpl(
 
     public async Task<MyInfoResponse> MyInfo()
     {
+        var cacheKey = $"{USER_CACHE_KEY_PREFIX}{_currentUser.UserId}";
+
+        var cachedUser = await _redisCache.GetAsync<UserCacheDto>(cacheKey);
+        if (cachedUser != null)
+        {
+            return _mapper.Map<MyInfoResponse>(cachedUser);
+        }
+
         var user =
             await _context.Users.SingleOrDefaultAsync(u =>
                 u.Id == _currentUser.UserId && u.Status == AppStatus.Active
             ) ?? throw new ApiException("User not found", StatusCodes.Status404NotFound);
 
-        return _mapper.Map<MyInfoResponse>(user);
+        var response = _mapper.Map<MyInfoResponse>(user);
+
+        var userCacheDto = _mapper.Map<UserCacheDto>(user);
+        userCacheDto.Roles = user.UserRoles.Select(ur => ur.Role.Name.ToString()).ToList();
+        await _redisCache.SetAsync(cacheKey, userCacheDto, CACHE_DURATION);
+
+        return response;
     }
 
     public async Task<RefreshTokenResponse> RefreshToken(RefreshTokenRequest request)
@@ -132,7 +160,16 @@ public class AuthServiceImpl(
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(
             _jwtSettings.RefreshTokenDurationInDays
         );
+
         await _context.SaveChangesAsync();
+
+        var userCacheDto = _mapper.Map<UserCacheDto>(user);
+        userCacheDto.Roles = user.UserRoles.Select(ur => ur.Role.Name.ToString()).ToList();
+        await _redisCache.SetAsync(
+            $"{USER_CACHE_KEY_PREFIX}{user.Id}",
+            userCacheDto,
+            CACHE_DURATION
+        );
 
         return new RefreshTokenResponse
         {
@@ -216,6 +253,8 @@ public class AuthServiceImpl(
         user.RefreshToken = null;
         user.RefreshTokenExpiryTime = null;
         await _context.SaveChangesAsync();
+
+        await _redisCache.RemoveAsync($"{USER_CACHE_KEY_PREFIX}{user.Id}");
     }
 
     private static string GenerateRefreshToken()
@@ -362,6 +401,14 @@ public class AuthServiceImpl(
         await _context.SaveChangesAsync();
 
         var listRole = user.UserRoles.Select(ur => ur.Role.Name.ToString()).ToList();
+
+        var userCacheDto = _mapper.Map<UserCacheDto>(user);
+        userCacheDto.Roles = listRole;
+        await _redisCache.SetAsync(
+            $"{USER_CACHE_KEY_PREFIX}{user.Id}",
+            userCacheDto,
+            CACHE_DURATION
+        );
 
         return new LoginResponse
         {

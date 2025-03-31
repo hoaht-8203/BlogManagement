@@ -41,5 +41,7 @@ public class MappingProfile : Profile
             );
         CreateMap<Category, ParentCategoryDto>();
         CreateMap<Category, ChildCategoryDto>();
+
+        CreateMap<User, UserCacheDto>().ForMember(dest => dest.Roles, opt => opt.Ignore());
     }
 }
