@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 using blog_server.Constants;
 
 namespace blog_server.Models;
@@ -21,8 +22,10 @@ public class Category : BaseEntity
     [Column("parent_id")]
     public int? ParentId { get; set; }
 
+    [JsonIgnore]
     public Category? Parent { get; set; }
 
+    [JsonIgnore]
     public ICollection<Category> Children { get; set; } = [];
 
     [Column("status")]

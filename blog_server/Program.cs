@@ -14,8 +14,16 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add Redis Configuration
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+    ConnectionMultiplexer.Connect(
+        builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379"
+    )
+);
 
 // Add services to the container.
 builder
@@ -133,9 +141,17 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DbConnection"));
 });
 
+// Add Redis Cache
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("Redis");
+    options.InstanceName = "BlogManagement_";
+});
+
 builder.Services.AddScoped<IAuthService, AuthServiceImpl>();
 builder.Services.AddScoped<ICurrentUser, CurrentUser>();
 builder.Services.AddScoped<ICategoryService, CategoryServiceImpl>();
+builder.Services.AddScoped<IRedisCacheService, RedisCacheServiceImpl>();
 builder.Services.AddScoped<IEmailService, EmailServiceImpl>();
 builder.Services.AddHttpClient();
 

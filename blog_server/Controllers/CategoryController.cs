@@ -73,7 +73,6 @@ namespace blog_server.Controllers
             );
         }
 
-        [Authorize(Roles = "ADMIN")]
         [HttpGet("list")]
         public async Task<ActionResult<ApiResponse<ListCategoryResponse>>> List(
             [FromQuery] ListCategoryRequest request
