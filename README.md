@@ -2,7 +2,7 @@
 
 OurBlog là một hệ thống quản lý blog hiện đại, được xây dựng bằng ASP.NET Core cho backend và Next.js cho frontend. Hệ thống hỗ trợ đăng ký, đăng nhập, quản lý bài viết và tương tác với người dùng.
 
-<div align="center" style=" border: 1px dashed black; padding: 1rem">
+<div align="center" style="border: 1px dashed black; padding: 1rem">
 
 <h3 style="margin: 0">🛠️ Technology Stack</h3>
 
