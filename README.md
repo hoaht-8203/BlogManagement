@@ -2,6 +2,64 @@
 
 OurBlog là một hệ thống quản lý blog hiện đại, được xây dựng bằng ASP.NET Core cho backend và Next.js cho frontend. Hệ thống hỗ trợ đăng ký, đăng nhập, quản lý bài viết và tương tác với người dùng.
 
+<div align="center">
+
+<h3>🛠️ Technology Stack</h3>
+
+<hr style="height: 2px; background-color: #e1e4e8; border: none; margin: 20px 0"/>
+
+<h4>Backend</h4>
+
+<div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 20px 0">
+
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvyg_gJ4zw1fQTH98RxTvYRXfLKuZea76zxg&s" width="48" height="48" alt="ASP.NET Core" title="ASP.NET Core" />
+<img src="https://static-00.iconduck.com/assets.00/postgresql-plain-wordmark-icon-2048x2042-up54u54l.png" width="48" height="48" alt="PostgreSQL" title="PostgreSQL" />
+<img src="https://cdn4.iconfinder.com/data/icons/redis-2/1451/Untitled-2-512.png" width="48" height="48" alt="Redis" title="Redis" />
+<img src="https://img.icons8.com/color/512/java-web-token.png" width="48" height="48" alt="JWT" title="JWT" />
+<img src="https://cyclr.com/wp-content/uploads/2022/03/ext-537.png" width="48" height="48" alt="MailKit" title="MailKit" />
+<img src="https://static-00.iconduck.com/assets.00/swagger-icon-2048x2048-563qbzey.png" width="48" height="48" alt="Swagger" title="Swagger" />
+
+</div>
+
+<hr style="height: 2px; background-color: #e1e4e8; border: none; margin: 20px 0"/>
+
+<h4>Frontend</h4>
+
+<div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 20px 0">
+
+<img src="https://static-00.iconduck.com/assets.00/next-js-icon-2048x2048-5dqjgeku.png" width="48" height="48" alt="Next.js" title="Next.js" />
+<img src="https://static-00.iconduck.com/assets.00/typescript-icon-icon-2048x2048-2rhh1z66.png" width="48" height="48" alt="TypeScript" title="TypeScript" />
+<img src="https://www.svgrepo.com/show/374118/tailwind.svg" width="48" height="48" alt="Tailwind CSS" title="Tailwind CSS" />
+<img src="https://files.svgcdn.io/logos/react-query-icon.png" width="48" height="48" alt="React Query" title="React Query" />
+
+</div>
+
+<hr style="height: 2px; background-color: #e1e4e8; border: none; margin: 20px 0"/>
+
+</div>
+
+## Công nghệ sử dụng
+
+### Backend
+
+- ASP.NET Core 8.0
+- Entity Framework Core
+- PostgreSQL
+- Redis cho caching
+- JWT Authentication
+- MailKit cho gửi email
+- AutoMapper
+- Swagger/OpenAPI
+
+### Frontend
+
+- Next.js 14
+- TypeScript
+- Tailwind CSS
+- React Query
+- React Hook Form
+- Zod validation
+
 ## Tính năng chính
 
 - 🔐 Xác thực và phân quyền người dùng
@@ -28,27 +86,6 @@ OurBlog là một hệ thống quản lý blog hiện đại, được xây dự
   - Quản lý thông tin cá nhân
   - Đổi mật khẩu
 
-## Công nghệ sử dụng
-
-### Backend
-
-- ASP.NET Core 8.0
-- Entity Framework Core
-- PostgreSQL
-- JWT Authentication
-- MailKit cho gửi email
-- AutoMapper
-- Swagger/OpenAPI
-
-### Frontend
-
-- Next.js 14
-- TypeScript
-- Tailwind CSS
-- React Query
-- React Hook Form
-- Zod validation
-
 ## Cài đặt và chạy
 
 ### Yêu cầu hệ thống
@@ -56,6 +93,7 @@ OurBlog là một hệ thống quản lý blog hiện đại, được xây dự
 - .NET 8.0 SDK
 - Node.js 18+
 - PostgreSQL
+- Redis
 - Git
 
 ### Backend
@@ -78,7 +116,8 @@ dotnet restore
 ```json
 {
   "ConnectionStrings": {
-    "DbConnection": "Host=localhost;Username=your_username;Password=your_password;Database=blog_db"
+    "DbConnection": "Host=localhost;Username=your_username;Password=your_password;Database=blog_db",
+    "RedisConnection": "localhost:6379"
   }
 }
 ```
@@ -158,6 +197,25 @@ npm run dev
   }
 }
 ```
+
+## Cấu hình Redis
+
+1. Cài đặt Redis trên máy local hoặc sử dụng Redis Cloud
+2. Cập nhật connection string trong `appsettings.json`:
+
+```json
+{
+  "ConnectionStrings": {
+    "RedisConnection": "localhost:6379"
+  }
+}
+```
+
+Redis được sử dụng để cache:
+
+- Thông tin người dùng
+- Danh mục bài viết
+- Các dữ liệu thường xuyên truy cập
 
 ## API Documentation
 
