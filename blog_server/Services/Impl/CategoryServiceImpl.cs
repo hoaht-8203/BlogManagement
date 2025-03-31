@@ -107,11 +107,23 @@ public class CategoryServiceImpl : ICategoryService
     public async Task<DetailCategoryResponse> DetailCategory(DetailCategoryRequest request)
     {
         var cacheKey = $"{CACHE_KEY_PREFIX}{request.CategoryId}";
-        var cachedCategory = await _redisCache.GetAsync<DetailCategoryResponse>(cacheKey);
+        System.Console.WriteLine("GO TO HERE 1");
 
-        if (cachedCategory != null)
+        try
         {
-            return cachedCategory;
+            var cachedCategory = await _redisCache.GetAsync<DetailCategoryResponse>(cacheKey);
+            System.Console.WriteLine("GO TO HERE 2");
+
+            if (cachedCategory != null)
+            {
+                System.Console.WriteLine("Get from cache");
+                return cachedCategory;
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($"Cache error: {ex.Message}");
+            // Continue to get from database if cache fails
         }
 
         var detailCategory =
@@ -124,7 +136,17 @@ public class CategoryServiceImpl : ICategoryService
             );
 
         var response = _mapper.Map<DetailCategoryResponse>(detailCategory);
-        await _redisCache.SetAsync(cacheKey, response, CACHE_DURATION);
+        System.Console.WriteLine("Get from db");
+
+        try
+        {
+            await _redisCache.SetAsync(cacheKey, response, CACHE_DURATION);
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($"Cache set error: {ex.Message}");
+            // Continue even if cache fails
+        }
 
         return response;
     }

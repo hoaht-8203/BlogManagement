@@ -18,7 +18,27 @@ public class MappingProfile : Profile
         CreateMap<Category, CreateCategoryResponse>();
         CreateMap<UpdateCategoryRequest, Category>();
         CreateMap<Category, UpdateCategoryResponse>();
-        CreateMap<Category, DetailCategoryResponse>();
+        CreateMap<Category, DetailCategoryResponse>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+            .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+            .ForMember(
+                dest => dest.Children,
+                opt =>
+                    opt.MapFrom(src =>
+                        src.Children.Select(c => new ChildCategoryDto
+                            {
+                                Id = c.Id,
+                                Name = c.Name,
+                                Description = c.Description,
+                                ParentId = c.ParentId,
+                                Status = c.Status,
+                            })
+                            .ToList()
+                    )
+            );
         CreateMap<Category, ParentCategoryDto>();
         CreateMap<Category, ChildCategoryDto>();
     }
