@@ -8,10 +8,24 @@ using Microsoft.EntityFrameworkCore;
 
 namespace blog_server.Services.Impl;
 
-public class CategoryServiceImpl(ApplicationDbContext context, IMapper mapper) : ICategoryService
+public class CategoryServiceImpl : ICategoryService
 {
-    private readonly ApplicationDbContext _context = context;
-    private readonly IMapper _mapper = mapper;
+    private readonly ApplicationDbContext _context;
+    private readonly IMapper _mapper;
+    private readonly IRedisCacheService _redisCache;
+    private const string CACHE_KEY_PREFIX = "category:";
+    private static readonly TimeSpan CACHE_DURATION = TimeSpan.FromMinutes(30);
+
+    public CategoryServiceImpl(
+        ApplicationDbContext context,
+        IMapper mapper,
+        IRedisCacheService redisCache
+    )
+    {
+        _context = context;
+        _mapper = mapper;
+        _redisCache = redisCache;
+    }
 
     public async Task<CreateCategoryResponse> CreateCategory(CreateCategoryRequest request)
     {
@@ -33,6 +47,14 @@ public class CategoryServiceImpl(ApplicationDbContext context, IMapper mapper) :
         var category = _mapper.Map<Category>(request);
         _context.Categories.Add(category);
         await _context.SaveChangesAsync();
+
+        // Invalidate related caches
+        await _redisCache.RemoveAsync($"{CACHE_KEY_PREFIX}list");
+        if (request.ParentId.HasValue)
+        {
+            await _redisCache.RemoveAsync($"{CACHE_KEY_PREFIX}{request.ParentId}");
+        }
+
         return _mapper.Map<CreateCategoryResponse>(category);
     }
 
@@ -48,7 +70,15 @@ public class CategoryServiceImpl(ApplicationDbContext context, IMapper mapper) :
         _mapper.Map(request, updateCategory);
         await _context.SaveChangesAsync();
 
-        throw new NotImplementedException();
+        // Invalidate related caches
+        await _redisCache.RemoveAsync($"{CACHE_KEY_PREFIX}{request.Id}");
+        await _redisCache.RemoveAsync($"{CACHE_KEY_PREFIX}list");
+        if (updateCategory.ParentId.HasValue)
+        {
+            await _redisCache.RemoveAsync($"{CACHE_KEY_PREFIX}{updateCategory.ParentId}");
+        }
+
+        return _mapper.Map<UpdateCategoryResponse>(updateCategory);
     }
 
     public async Task<DeleteCategoryResponse> DeleteCategory(DeleteCategoryRequest request)
@@ -63,11 +93,27 @@ public class CategoryServiceImpl(ApplicationDbContext context, IMapper mapper) :
         delCategory.Status = AppStatus.Deleted;
         await _context.SaveChangesAsync();
 
+        // Invalidate related caches
+        await _redisCache.RemoveAsync($"{CACHE_KEY_PREFIX}{request.CategoryId}");
+        await _redisCache.RemoveAsync($"{CACHE_KEY_PREFIX}list");
+        if (delCategory.ParentId.HasValue)
+        {
+            await _redisCache.RemoveAsync($"{CACHE_KEY_PREFIX}{delCategory.ParentId}");
+        }
+
         return new DeleteCategoryResponse() { Id = delCategory.Id };
     }
 
     public async Task<DetailCategoryResponse> DetailCategory(DetailCategoryRequest request)
     {
+        var cacheKey = $"{CACHE_KEY_PREFIX}{request.CategoryId}";
+        var cachedCategory = await _redisCache.GetAsync<DetailCategoryResponse>(cacheKey);
+
+        if (cachedCategory != null)
+        {
+            return cachedCategory;
+        }
+
         var detailCategory =
             await _context
                 .Categories.Include(c => c.Children)
@@ -77,11 +123,22 @@ public class CategoryServiceImpl(ApplicationDbContext context, IMapper mapper) :
                 StatusCodes.Status400BadRequest
             );
 
-        return _mapper.Map<DetailCategoryResponse>(detailCategory);
+        var response = _mapper.Map<DetailCategoryResponse>(detailCategory);
+        await _redisCache.SetAsync(cacheKey, response, CACHE_DURATION);
+
+        return response;
     }
 
     public async Task<ListCategoryResponse> ListCategories(ListCategoryRequest request)
     {
+        const string cacheKey = $"{CACHE_KEY_PREFIX}list";
+        var cachedList = await _redisCache.GetAsync<ListCategoryResponse>(cacheKey);
+
+        if (cachedList != null)
+        {
+            return cachedList;
+        }
+
         var rootCategories = await _context
             .Categories.Include(c => c.Children)
             .Where(c => c.ParentId == null && c.Status == AppStatus.Active)
@@ -101,6 +158,7 @@ public class CategoryServiceImpl(ApplicationDbContext context, IMapper mapper) :
                 .ToList();
         }
 
+        await _redisCache.SetAsync(cacheKey, response, CACHE_DURATION);
         return response;
     }
 }
