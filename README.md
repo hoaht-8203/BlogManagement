@@ -2,39 +2,33 @@
 
 OurBlog là một hệ thống quản lý blog hiện đại, được xây dựng bằng ASP.NET Core cho backend và Next.js cho frontend. Hệ thống hỗ trợ đăng ký, đăng nhập, quản lý bài viết và tương tác với người dùng.
 
-<div align="center">
+<div align="center" style=" border: 1px dashed black; padding: 1rem">
 
-<h3>🛠️ Technology Stack</h3>
+<h3 style="margin: 0">🛠️ Technology Stack</h3>
 
-<hr style="height: 2px; background-color: #e1e4e8; border: none; margin: 20px 0"/>
+<h4 style="text-decoration: underline;">Backend</h4>
 
-<h4>Backend</h4>
+<div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 20px 0;">
 
-<div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 20px 0">
-
-<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvyg_gJ4zw1fQTH98RxTvYRXfLKuZea76zxg&s" width="48" height="48" alt="ASP.NET Core" title="ASP.NET Core" />
-<img src="https://static-00.iconduck.com/assets.00/postgresql-plain-wordmark-icon-2048x2042-up54u54l.png" width="48" height="48" alt="PostgreSQL" title="PostgreSQL" />
-<img src="https://cdn4.iconfinder.com/data/icons/redis-2/1451/Untitled-2-512.png" width="48" height="48" alt="Redis" title="Redis" />
-<img src="https://img.icons8.com/color/512/java-web-token.png" width="48" height="48" alt="JWT" title="JWT" />
-<img src="https://cyclr.com/wp-content/uploads/2022/03/ext-537.png" width="48" height="48" alt="MailKit" title="MailKit" />
-<img src="https://static-00.iconduck.com/assets.00/swagger-icon-2048x2048-563qbzey.png" width="48" height="48" alt="Swagger" title="Swagger" />
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvyg_gJ4zw1fQTH98RxTvYRXfLKuZea76zxg&s" width="85" height="85" alt="ASP.NET Core" title="ASP.NET Core" />
+<img src="https://static-00.iconduck.com/assets.00/postgresql-plain-wordmark-icon-2048x2042-up54u54l.png" width="85" height="85" alt="PostgreSQL" title="PostgreSQL" />
+<img src="https://cdn4.iconfinder.com/data/icons/redis-2/1451/Untitled-2-512.png" width="85" height="85" alt="Redis" title="Redis" />
+<img src="https://img.icons8.com/color/512/java-web-token.png" width="85" height="85" alt="JWT" title="JWT" />
+<img src="https://cyclr.com/wp-content/uploads/2022/03/ext-537.png" width="85" height="85" alt="MailKit" title="MailKit" />
+<img src="https://static-00.iconduck.com/assets.00/swagger-icon-2048x2048-563qbzey.png" width="85" height="85" alt="Swagger" title="Swagger" />
 
 </div>
 
-<hr style="height: 2px; background-color: #e1e4e8; border: none; margin: 20px 0"/>
-
-<h4>Frontend</h4>
+<h4 style="text-decoration: underline">Frontend</h4>
 
 <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 20px 0">
 
-<img src="https://static-00.iconduck.com/assets.00/next-js-icon-2048x2048-5dqjgeku.png" width="48" height="48" alt="Next.js" title="Next.js" />
-<img src="https://static-00.iconduck.com/assets.00/typescript-icon-icon-2048x2048-2rhh1z66.png" width="48" height="48" alt="TypeScript" title="TypeScript" />
-<img src="https://www.svgrepo.com/show/374118/tailwind.svg" width="48" height="48" alt="Tailwind CSS" title="Tailwind CSS" />
-<img src="https://files.svgcdn.io/logos/react-query-icon.png" width="48" height="48" alt="React Query" title="React Query" />
+<img src="https://static-00.iconduck.com/assets.00/next-js-icon-2048x2048-5dqjgeku.png" width="85" height="85" alt="Next.js" title="Next.js" />
+<img src="https://static-00.iconduck.com/assets.00/typescript-icon-icon-2048x2048-2rhh1z66.png" width="85" height="85" alt="TypeScript" title="TypeScript" />
+<img src="https://www.svgrepo.com/show/374118/tailwind.svg" width="85" height="85" alt="Tailwind CSS" title="Tailwind CSS" />
+<img src="https://files.svgcdn.io/logos/react-query-icon.png" width="85" height="85" alt="React Query" title="React Query" />
 
 </div>
-
-<hr style="height: 2px; background-color: #e1e4e8; border: none; margin: 20px 0"/>
 
 </div>
 
