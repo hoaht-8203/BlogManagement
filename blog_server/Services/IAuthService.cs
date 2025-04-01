@@ -10,6 +10,7 @@ public interface IAuthService
     public Task<RefreshTokenResponse> RefreshToken(RefreshTokenRequest request);
     public Task RevokeToken();
     public Task<MyInfoResponse> MyInfo();
+    public Task UpdateInfo(UpdateInfoRequest request);
     public Task ForgotPassword(ForgotPasswordRequest request);
     public Task VerifyResetToken(VerifyResetTokenRequest request);
     public Task VerifyEmail(VerifyEmailRequest request);

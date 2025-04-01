@@ -18,6 +18,12 @@ public class User : BaseEntity
     [Column("password_hash")]
     public string PasswordHash { get; set; } = string.Empty;
 
+    [Column("fullname")]
+    public string? FullName { get; set; }
+
+    [Column("address")]
+    public string? Address { get; set; }
+
     [Column("phone")]
     public string? Phone { get; set; }
 

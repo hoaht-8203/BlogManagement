@@ -170,11 +170,17 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
+app.UseStaticFiles();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+        c.IndexStream = () => File.OpenRead("wwwroot/swagger-custom.html");
+    });
 
     Console.WriteLine("====================================");
     Console.WriteLine("🚀 API is running:");

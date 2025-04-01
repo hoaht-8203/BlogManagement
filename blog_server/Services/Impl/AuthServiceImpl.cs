@@ -90,14 +90,7 @@ public class AuthServiceImpl(
 
         var listRole = user.UserRoles.Select(ur => ur.Role.Name.ToString()).ToList();
 
-        // Cache user information
-        var userCacheDto = _mapper.Map<UserCacheDto>(user);
-        userCacheDto.Roles = listRole;
-        await _redisCache.SetAsync(
-            $"{USER_CACHE_KEY_PREFIX}{user.Id}",
-            userCacheDto,
-            CACHE_DURATION
-        );
+        await _redisCache.RemoveAsync($"{USER_CACHE_KEY_PREFIX}{_currentUser.UserId}");
 
         return new LoginResponse
         {
@@ -121,15 +114,28 @@ public class AuthServiceImpl(
         var user =
             await _context.Users.SingleOrDefaultAsync(u =>
                 u.Id == _currentUser.UserId && u.Status == AppStatus.Active
-            ) ?? throw new ApiException("User not found", StatusCodes.Status404NotFound);
+            ) ?? throw new ApiException("User not found", StatusCodes.Status401Unauthorized);
 
         var response = _mapper.Map<MyInfoResponse>(user);
 
         var userCacheDto = _mapper.Map<UserCacheDto>(user);
-        userCacheDto.Roles = user.UserRoles.Select(ur => ur.Role.Name.ToString()).ToList();
         await _redisCache.SetAsync(cacheKey, userCacheDto, CACHE_DURATION);
 
         return response;
+    }
+
+    public async Task UpdateInfo(UpdateInfoRequest request)
+    {
+        var user =
+            await _context.Users.SingleOrDefaultAsync(u =>
+                u.Id == _currentUser.UserId && u.Status == AppStatus.Active
+            ) ?? throw new ApiException("User not found", StatusCodes.Status401Unauthorized);
+
+        await _redisCache.RemoveAsync($"{USER_CACHE_KEY_PREFIX}{_currentUser.UserId}");
+
+        _mapper.Map(request, user);
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
     }
 
     public async Task<RefreshTokenResponse> RefreshToken(RefreshTokenRequest request)
@@ -164,7 +170,6 @@ public class AuthServiceImpl(
         await _context.SaveChangesAsync();
 
         var userCacheDto = _mapper.Map<UserCacheDto>(user);
-        userCacheDto.Roles = user.UserRoles.Select(ur => ur.Role.Name.ToString()).ToList();
         await _redisCache.SetAsync(
             $"{USER_CACHE_KEY_PREFIX}{user.Id}",
             userCacheDto,
@@ -403,7 +408,6 @@ public class AuthServiceImpl(
         var listRole = user.UserRoles.Select(ur => ur.Role.Name.ToString()).ToList();
 
         var userCacheDto = _mapper.Map<UserCacheDto>(user);
-        userCacheDto.Roles = listRole;
         await _redisCache.SetAsync(
             $"{USER_CACHE_KEY_PREFIX}{user.Id}",
             userCacheDto,

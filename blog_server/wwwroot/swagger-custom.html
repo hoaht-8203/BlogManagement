@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Swagger UI</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/swagger-ui-dist@4/swagger-ui.css"
+    />
+    <script src="https://unpkg.com/swagger-ui-dist@4/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist@4/swagger-ui-standalone-preset.js"></script>
+    <style>
+      body {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="swagger-ui"></div>
+    <script>
+      window.onload = function () {
+        const ui = SwaggerUIBundle({
+          url: "/swagger/v1/swagger.json",
+          dom_id: "#swagger-ui",
+          presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+          layout: "StandaloneLayout",
+          responseInterceptor: (response) => {
+            console.log("Intercepted response:", response.url, response.status);
+
+            if (
+              response.url === "http://localhost:5010/api/Auth/login" &&
+              response.status === 200
+            ) {
+              const token = response.body.data.accessToken;
+
+              ui.preauthorizeApiKey("Bearer", token);
+            }
+            return response;
+          },
+        });
+
+        function autoAuthorize(token) {
+          ui.preauthorizeApiKey("Bearer", token);
+        }
+      };
+    </script>
+  </body>
+</html>

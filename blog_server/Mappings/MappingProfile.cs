@@ -12,6 +12,9 @@ public class MappingProfile : Profile
         CreateMap<User, RegisterResponse>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()));
         CreateMap<User, MyInfoResponse>();
+        CreateMap<UserCacheDto, MyInfoResponse>();
+        CreateMap<User, UserCacheDto>();
+        CreateMap<UpdateInfoRequest, User>();
 
         // Category
         CreateMap<CreateCategoryRequest, Category>();
@@ -41,7 +44,5 @@ public class MappingProfile : Profile
             );
         CreateMap<Category, ParentCategoryDto>();
         CreateMap<Category, ChildCategoryDto>();
-
-        CreateMap<User, UserCacheDto>().ForMember(dest => dest.Roles, opt => opt.Ignore());
     }
 }

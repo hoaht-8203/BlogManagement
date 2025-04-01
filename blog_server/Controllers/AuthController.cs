@@ -68,6 +68,14 @@ namespace blog_server.Controllers
         }
 
         [Authorize]
+        [HttpPost("update-info")]
+        public async Task<ActionResult<ApiResponse<object?>>> UpdateInfo(UpdateInfoRequest request)
+        {
+            await _authService.UpdateInfo(request);
+            return Ok(ApiResponse<object?>.SuccessResponse(null, "Update info successfully"));
+        }
+
+        [Authorize]
         [HttpPost("revoke")]
         public async Task<ActionResult<ApiResponse<object?>>> RevokeToken()
         {
