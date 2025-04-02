@@ -14,4 +14,5 @@ public interface IAuthService
     public Task ForgotPassword(ForgotPasswordRequest request);
     public Task VerifyResetToken(VerifyResetTokenRequest request);
     public Task VerifyEmail(VerifyEmailRequest request);
+    public Task ResetPassword(ResetPasswordRequest request);
 }

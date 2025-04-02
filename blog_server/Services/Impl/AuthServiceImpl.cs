@@ -555,6 +555,26 @@ public class AuthServiceImpl(
 
         await _context.SaveChangesAsync();
     }
+
+    public async Task ResetPassword(ResetPasswordRequest request)
+    {
+        var user =
+            await _context.Users.FirstOrDefaultAsync(u =>
+                u.Id == _currentUser.UserId && u.Status == AppStatus.Active
+            ) ?? throw new ApiException("Reset password failed", StatusCodes.Status401Unauthorized);
+
+        if (!PasswordHelper.VerifyPassword(request.OldPassword, user.PasswordHash))
+        {
+            throw new ApiException(
+                "Reset password failed",
+                StatusCodes.Status400BadRequest,
+                ["old_password:Mật khẩu cũ không chính xác"]
+            );
+        }
+
+        user.PasswordHash = PasswordHelper.HashPassword(request.NewPassword);
+        await _context.SaveChangesAsync();
+    }
 }
 
 public class GoogleTokenInfo

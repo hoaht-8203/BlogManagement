@@ -1,3 +1,4 @@
+using blog_server.CustomAttributes;
 using blog_server.DTOs.Auth;
 using blog_server.Models;
 using blog_server.Services;
@@ -15,6 +16,7 @@ namespace blog_server.Controllers
         private readonly ILogger<AuthController> _logger = logger;
 
         [HttpPost("login")]
+        [Transaction]
         public async Task<ActionResult<ApiResponse<LoginResponse>>> Login(LoginRequest request)
         {
             var response = await _authService.Login(request);
@@ -22,6 +24,7 @@ namespace blog_server.Controllers
         }
 
         [HttpPost("google-login")]
+        [Transaction]
         public async Task<ActionResult<ApiResponse<LoginResponse>>> GoogleLogin(
             GoogleLoginRequest request
         )
@@ -33,6 +36,7 @@ namespace blog_server.Controllers
         }
 
         [HttpPost("register")]
+        [Transaction]
         public async Task<ActionResult<ApiResponse<RegisterResponse>>> Register(
             RegisterRequest request
         )
@@ -44,6 +48,7 @@ namespace blog_server.Controllers
         }
 
         [HttpPost("refresh-token")]
+        [Transaction]
         public async Task<ActionResult<ApiResponse<RefreshTokenResponse>>> RefreshToken(
             RefreshTokenRequest request
         )
@@ -69,6 +74,7 @@ namespace blog_server.Controllers
 
         [Authorize]
         [HttpPost("update-info")]
+        [Transaction]
         public async Task<ActionResult<ApiResponse<object?>>> UpdateInfo(UpdateInfoRequest request)
         {
             await _authService.UpdateInfo(request);
@@ -77,6 +83,7 @@ namespace blog_server.Controllers
 
         [Authorize]
         [HttpPost("revoke")]
+        [Transaction]
         public async Task<ActionResult<ApiResponse<object?>>> RevokeToken()
         {
             await _authService.RevokeToken();
@@ -84,6 +91,7 @@ namespace blog_server.Controllers
         }
 
         [HttpPost("forgot-password")]
+        [Transaction]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
             await _authService.ForgotPassword(request);
@@ -96,6 +104,7 @@ namespace blog_server.Controllers
         }
 
         [HttpPost("verify-reset-token")]
+        [Transaction]
         public async Task<IActionResult> VerifyResetToken(
             [FromBody] VerifyResetTokenRequest request
         )
@@ -110,10 +119,20 @@ namespace blog_server.Controllers
         }
 
         [HttpPost("verify-email")]
+        [Transaction]
         public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailRequest request)
         {
             await _authService.VerifyEmail(request);
             return Ok(ApiResponse<object?>.SuccessResponse(null, "Email đã được xác thực"));
+        }
+
+        [Authorize]
+        [HttpPost("reset-password")]
+        [Transaction]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            await _authService.ResetPassword(request);
+            return Ok(ApiResponse<object?>.SuccessResponse(null, "Mật khẩu đã được đổi"));
         }
     }
 }
