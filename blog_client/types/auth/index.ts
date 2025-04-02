@@ -38,6 +38,10 @@ export interface RefreshTokenResponse {
 export interface MyInfoResponse {
   username: string;
   email: string;
+  fullName: string;
+  address: string;
+  phone: string;
+  avatarUrl: string;
 }
 
 export interface ForgotPasswordRequest {
@@ -47,4 +51,16 @@ export interface ForgotPasswordRequest {
 export interface VerifyResetTokenRequest {
   email: string;
   token: string;
+}
+
+export interface ResetPasswordRequest {
+  oldPassword: string;
+  newPassword: string;
+}
+
+export interface UpdateInfoRequest {
+  fullName: string;
+  phone: string;
+  address: string;
+  avatarUrl: string;
 }

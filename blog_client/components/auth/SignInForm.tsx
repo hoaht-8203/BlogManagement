@@ -60,8 +60,8 @@ const SignInForm = () => {
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <Card className="w-[450px]">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto w-full md:w-[450px]">
+          <Card>
             <CardHeader>
               <CardTitle>
                 Đăng nhập <span className="text-blue-500">OurBlog</span>

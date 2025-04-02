@@ -60,8 +60,8 @@ const SignUpForm = () => {
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <Card className="w-[550px]">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="mx-auto w-full md:w-[550px]">
+          <Card>
             <CardHeader>
               <CardTitle>
                 Đăng ký tài khoản <span className="text-blue-500">OurBlog</span>
@@ -78,7 +78,7 @@ const SignUpForm = () => {
                   control={form.control}
                   name="username"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-2 md:col-span-1">
                       <FormLabel>Tên tài khoản (username)</FormLabel>
                       <FormControl>
                         <Input placeholder="Nhập tên tài khoản của bạn" {...field} />
@@ -91,7 +91,7 @@ const SignUpForm = () => {
                   control={form.control}
                   name="email"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="col-span-2 md:col-span-1">
                       <FormLabel>Email</FormLabel>
                       <FormControl>
                         <Input placeholder="example@gmail.com" {...field} />

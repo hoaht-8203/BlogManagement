@@ -9,50 +9,33 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { updateInfoSchema } from '@/schema/authSchema';
+import { MyInfoResponse } from '@/types/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CheckCheck, Loader2 } from 'lucide-react';
-import { useEffect } from 'react';
+import { CheckCheck } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-const formSchema = z.object({
-  username: z.string(),
-  email: z.string(),
-  phone: z.string(),
-});
-
-const UpdateInfoTab = () => {
-  const { user, isLoadingUser } = useAuth();
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+const UpdateInfoTab: React.FC<{ user: MyInfoResponse }> = ({ user }) => {
+  const { updateInfo } = useAuth();
+  const form = useForm<z.infer<typeof updateInfoSchema>>({
+    resolver: zodResolver(updateInfoSchema),
     defaultValues: {
-      username: '',
-      email: '',
-      phone: '',
+      fullName: user.fullName || '',
+      username: user.username || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      address: user.address || '',
     },
   });
 
-  useEffect(() => {
-    if (user) {
-      form.reset({
-        username: user.username || '',
-        email: user.email || '',
-        phone: '',
-      });
-    }
-  }, [user, form]);
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-  }
-
-  if (isLoadingUser) {
-    return (
-      <div className="flex h-[214px] items-center justify-center">
-        <Loader2 className="size-5 animate-spin" />
-      </div>
-    );
+  function onSubmit(values: z.infer<typeof updateInfoSchema>) {
+    updateInfo.mutate({
+      fullName: values.fullName?.trim() || '',
+      phone: values.phone?.trim() || '',
+      address: values.address?.trim() || '',
+      avatarUrl: user.avatarUrl.trim(),
+    });
   }
 
   return (
@@ -60,12 +43,25 @@ const UpdateInfoTab = () => {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 md:w-[450px]">
         <FormField
           control={form.control}
+          name="fullName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Họ và tên</FormLabel>
+              <FormControl>
+                <Input placeholder="Họ và tên" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="username"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Tên tài khoản</FormLabel>
               <FormControl>
-                <Input placeholder="Tên tài khoản" {...field} />
+                <Input placeholder="Tên tài khoản" {...field} disabled />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -92,6 +88,19 @@ const UpdateInfoTab = () => {
               <FormLabel>Số điện thoại</FormLabel>
               <FormControl>
                 <Input placeholder="Số điện thoại" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="address"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Địa chỉ</FormLabel>
+              <FormControl>
+                <Input placeholder="Địa chỉ" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -73,7 +73,7 @@ namespace blog_server.Controllers
         }
 
         [Authorize]
-        [HttpPost("update-info")]
+        [HttpPut("update-info")]
         [Transaction]
         public async Task<ActionResult<ApiResponse<object?>>> UpdateInfo(UpdateInfoRequest request)
         {

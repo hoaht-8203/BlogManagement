@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -7,6 +6,7 @@ import { ApiError } from '@/types/error';
 import toast from 'react-hot-toast';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { ApiResponse } from '@/types/api';
 
 export const QUERY_KEYS = {
   USER: 'user',
@@ -56,7 +56,6 @@ export const useAuth = () => {
       if (!response.data) {
         throw new ApiError('Google login failed: No data received', null, false);
       }
-      console.log('GO TO HERE', response.data);
 
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
@@ -126,6 +125,25 @@ export const useAuth = () => {
     },
   });
 
+  const updateInfo = useMutation({
+    mutationFn: authService.updateInfo,
+    onSuccess: (data: ApiResponse<string>) => {
+      toast.success(data.message);
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER] });
+    },
+  });
+
+  const resetPassword = useMutation({
+    mutationFn: authService.resetPassword,
+    onSuccess: (data: ApiResponse<string>) => {
+      toast.success(data.message);
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER] });
+    },
+    onError: (error: ApiError) => {
+      toast.error(`${error.message}`);
+    },
+  });
+
   return {
     login,
     googleLogin,
@@ -136,5 +154,7 @@ export const useAuth = () => {
     isLoadingUser: !isClient || isLoadingUser,
     forgotPassword,
     verifyResetToken,
+    updateInfo,
+    resetPassword,
   };
 };

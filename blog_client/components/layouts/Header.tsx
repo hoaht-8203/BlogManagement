@@ -13,10 +13,17 @@ import {
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '../ui/button';
+import { useEffect, useState } from 'react';
 
 const Header = () => {
   const router = useRouter();
+  const [tokenCheck, setTokenCheck] = useState(false);
   const { user, logout, isLoadingUser } = useAuth();
+
+  useEffect(() => {
+    const tokenCheck = localStorage.getItem('accessToken');
+    setTokenCheck(tokenCheck !== null);
+  }, [router]);
 
   const handleLogout = () => {
     logout();
@@ -33,9 +40,13 @@ const Header = () => {
               </Link>
             </div>
 
-            {isLoadingUser && <span>Authenticating...</span>}
+            {tokenCheck && isLoadingUser && (
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-500">Authenticating...</span>
+              </div>
+            )}
 
-            {user === null && !isLoadingUser && (
+            {user === null && !tokenCheck && !isLoadingUser && (
               <div className="space-x-2">
                 <Button variant="default" onClick={() => router.push('/login')}>
                   Login

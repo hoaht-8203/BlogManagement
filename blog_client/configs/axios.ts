@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { API_ENDPOINTS } from '@/constants/endpoints';
 import { authService } from '@/services/auth.service';
 import { ApiResponse } from '@/types/api';
 import { ApiError } from '@/types/error';
@@ -13,7 +14,7 @@ const axiosInstance = axios.create({
   },
 });
 
-// Add interceptors
+// Add request interceptor to add auth token
 axiosInstance.interceptors.request.use(
   (config) => {
     if (isClient) {
@@ -24,9 +25,7 @@ axiosInstance.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  },
+  (error) => Promise.reject(error),
 );
 
 let isRefreshing = false;
@@ -43,30 +42,46 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
+const handleUnauthorized = () => {
+  if (isClient) {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    window.location.href = '/login';
+  }
+};
+
+// Add response interceptor to handle token refresh
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // Xử lý 401 và refresh token
+    // Case 1: Refresh token API returns 401
+    // This means both access token and refresh token are invalid
+    if (
+      error.response?.status === 401 &&
+      originalRequest.url === API_ENDPOINTS.AUTH.REFRESH_TOKEN
+    ) {
+      handleUnauthorized();
+      throw new ApiError('Authentication failed - Please login again', null, false);
+    }
+
+    // Case 2: Any other API returns 401 and we haven't tried refreshing yet
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (!isClient) {
         throw new ApiError('Unauthorized - Please login', null, false);
       }
 
-      // Kiểm tra tokens
+      // Check if we have tokens
       const accessToken = localStorage.getItem('accessToken');
       const refreshToken = localStorage.getItem('refreshToken');
 
-      // Nếu không có tokens, redirect to login
       if (!accessToken || !refreshToken) {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        window.location.href = '/login'; // Redirect trước
-        throw new ApiError('Unauthorized - Please login', null, false);
+        handleUnauthorized();
+        throw new ApiError('No tokens found - Please login', null, false);
       }
 
-      // Nếu đang refresh, thêm request vào queue
+      // If already refreshing, add request to queue
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -77,15 +92,15 @@ axiosInstance.interceptors.response.use(
           })
           .catch((err) => {
             if (err instanceof ApiError) {
-              window.location.href = '/login';
+              handleUnauthorized();
               throw err;
             }
-            window.location.href = '/login';
+            handleUnauthorized();
             throw new ApiError('Authentication failed', null, false);
           });
       }
 
-      // Bắt đầu refresh token
+      // Start refresh token process
       originalRequest._retry = true;
       isRefreshing = true;
 
@@ -96,24 +111,23 @@ axiosInstance.interceptors.response.use(
         });
 
         if (!response.data) {
-          window.location.href = '/login';
-          throw new ApiError('Refresh token failed: No data received', null, false);
+          handleUnauthorized();
+          throw new ApiError('Refresh token failed - No data received', null, false);
         }
 
         const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data;
 
+        // Update tokens
         localStorage.setItem('accessToken', newAccessToken);
         localStorage.setItem('refreshToken', newRefreshToken);
-
         axiosInstance.defaults.headers.common.Authorization = `Bearer ${newAccessToken}`;
+
+        // Process queued requests
         processQueue(null, newAccessToken);
         return axiosInstance(originalRequest);
       } catch (err) {
         processQueue(err, null);
-        // Clear tokens and redirect
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        window.location.href = '/login';
+        handleUnauthorized();
 
         if (err instanceof ApiError) {
           throw err;
@@ -124,19 +138,13 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    // Xử lý các error khác
+    // Case 3: Handle other API errors
     if (axios.isAxiosError(error) && error.response?.data) {
       const apiError = error.response.data as ApiResponse<unknown>;
-      // Nếu là lỗi unauthorized, redirect to login
-      if (error.response.status === 401) {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        window.location.href = '/login';
-      }
       throw new ApiError(apiError.message, apiError.errors, apiError.success);
     }
 
-    // Nếu không phải error đã biết, throw generic error
+    // Case 4: Handle unknown errors
     throw new ApiError('An unexpected error occurred', null, false);
   },
 );

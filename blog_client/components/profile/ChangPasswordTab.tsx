@@ -5,16 +5,14 @@ import { z } from 'zod';
 import { Button } from '../ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 import { Input } from '../ui/input';
-
-const formSchema = z.object({
-  oldPassword: z.string(),
-  newPassword: z.string(),
-  confirmNewPassword: z.string(),
-});
+import { resetPasswordSchema } from '../../schema/authSchema';
+import { useAuth } from '../../apis/useAuth';
+import { ApiError } from '../../types/error';
 
 const ChangPasswordTab = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const { resetPassword } = useAuth();
+  const form = useForm<z.infer<typeof resetPasswordSchema>>({
+    resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
       oldPassword: '',
       newPassword: '',
@@ -22,8 +20,21 @@ const ChangPasswordTab = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  function onSubmit(values: z.infer<typeof resetPasswordSchema>) {
+    resetPassword.mutate(values, {
+      onError(error: ApiError) {
+        error.errors?.forEach((err) => {
+          const [field, message] = err.split(':');
+          form.setError(field as 'oldPassword' | 'newPassword' | 'confirmNewPassword', {
+            type: 'server',
+            message: message,
+          });
+        });
+      },
+      onSuccess() {
+        form.reset();
+      },
+    });
   }
 
   return (
@@ -36,7 +47,7 @@ const ChangPasswordTab = () => {
             <FormItem>
               <FormLabel>Mật khẩu cũ</FormLabel>
               <FormControl>
-                <Input placeholder="Mật khẩu cũ" {...field} />
+                <Input placeholder="Mật khẩu cũ" {...field} type="password" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -49,7 +60,7 @@ const ChangPasswordTab = () => {
             <FormItem>
               <FormLabel>Mật khẩu mới</FormLabel>
               <FormControl>
-                <Input placeholder="Mật khẩu mới" {...field} />
+                <Input placeholder="Mật khẩu mới" {...field} type="password" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -62,7 +73,7 @@ const ChangPasswordTab = () => {
             <FormItem>
               <FormLabel>Nhập lại mật khẩu mới</FormLabel>
               <FormControl>
-                <Input placeholder="Nhập lại mật khẩu mới" {...field} />
+                <Input placeholder="Nhập lại mật khẩu mới" {...field} type="password" />
               </FormControl>
               <FormMessage />
             </FormItem>
