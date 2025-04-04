@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  allowedDevOrigins: ['192.168.38.109'],
   images: {
     remotePatterns: [
       {
@@ -11,6 +12,7 @@ const nextConfig = {
         hostname: 's3.thoainguyentek.com',
       },
     ],
+    domains: ['cdn3.iconfinder.com'],
   },
 };
 
