@@ -44,7 +44,7 @@ public class AuthServiceImpl(
     private const string USER_CACHE_KEY_PREFIX = "user:";
     private static readonly TimeSpan CACHE_DURATION = TimeSpan.FromMinutes(30);
 
-    public async Task<LoginResponse> Login(LoginRequest request)
+    public async Task<LoginResponse> Login(LoginRequest request, DeviceInfo deviceInfo)
     {
         var user =
             await _context
@@ -81,11 +81,19 @@ public class AuthServiceImpl(
         var accessToken = GenerateAccessToken(user);
         var refreshToken = GenerateRefreshToken();
 
-        user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(
-            _jwtSettings.RefreshTokenDurationInDays
-        );
+        var userToken = new UserToken
+        {
+            Email = user.Email,
+            UserId = user.Id,
+            Token = refreshToken,
+            TokenType = TokenTypes.RefreshToken,
+            ExpiryTime = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenDurationInDays),
+            DeviceType = deviceInfo.DeviceType,
+            OS = deviceInfo.OS,
+            Browser = deviceInfo.Browser,
+        };
 
+        _context.UserTokens.Add(userToken);
         await _context.SaveChangesAsync();
 
         var listRole = user.UserRoles.Select(ur => ur.Role.Name.ToString()).ToList();
@@ -140,38 +148,31 @@ public class AuthServiceImpl(
 
     public async Task<RefreshTokenResponse> RefreshToken(RefreshTokenRequest request)
     {
-        var principal = GetPrincipalFromExpiredToken(request.AccessToken);
-        var username = principal.Identity?.Name;
-
-        var user =
-            await _context.Users.SingleOrDefaultAsync(u =>
-                u.Username == username && u.Status == AppStatus.Active
-            ) ?? throw new ApiException("Invalid token", StatusCodes.Status401Unauthorized);
-
-        if (
-            user.RefreshToken != request.RefreshToken
-            || user.RefreshTokenExpiryTime <= DateTime.UtcNow
-        )
-        {
-            throw new ApiException(
+        var userToken =
+            await _context
+                .UserTokens.Include(ut => ut.User)
+                .FirstOrDefaultAsync(ut =>
+                    ut.UserId == _currentUser.UserId
+                    && ut.Token == request.RefreshToken
+                    && ut.TokenType == TokenTypes.RefreshToken
+                    && ut.ExpiryTime > DateTime.UtcNow
+                )
+            ?? throw new ApiException(
                 "Invalid or expired refresh token",
                 StatusCodes.Status401Unauthorized
             );
-        }
 
-        var newAccessToken = GenerateAccessToken(user);
+        var newAccessToken = GenerateAccessToken(userToken.User);
         var newRefreshToken = GenerateRefreshToken();
 
-        user.RefreshToken = newRefreshToken;
-        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(
-            _jwtSettings.RefreshTokenDurationInDays
-        );
+        userToken.Token = newRefreshToken;
+        userToken.ExpiryTime = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenDurationInDays);
 
         await _context.SaveChangesAsync();
 
-        var userCacheDto = _mapper.Map<UserCacheDto>(user);
+        var userCacheDto = _mapper.Map<UserCacheDto>(userToken.User);
         await _redisCache.SetAsync(
-            $"{USER_CACHE_KEY_PREFIX}{user.Id}",
+            $"{USER_CACHE_KEY_PREFIX}{userToken.UserId}",
             userCacheDto,
             CACHE_DURATION
         );
@@ -250,16 +251,17 @@ public class AuthServiceImpl(
 
     public async Task RevokeToken()
     {
-        var user =
-            await _context.Users.SingleOrDefaultAsync(u =>
-                u.Id == _currentUser.UserId && u.Status == AppStatus.Active
+        var userToken =
+            await _context.UserTokens.FirstOrDefaultAsync(ut =>
+                ut.UserId == _currentUser.UserId
+                && ut.TokenType == TokenTypes.RefreshToken
+                && ut.ExpiryTime > DateTime.UtcNow
             ) ?? throw new ApiException("User not found", StatusCodes.Status404NotFound);
 
-        user.RefreshToken = null;
-        user.RefreshTokenExpiryTime = null;
+        _context.UserTokens.Remove(userToken);
         await _context.SaveChangesAsync();
 
-        await _redisCache.RemoveAsync($"{USER_CACHE_KEY_PREFIX}{user.Id}");
+        await _redisCache.RemoveAsync($"{USER_CACHE_KEY_PREFIX}{userToken.UserId}");
     }
 
     private static string GenerateRefreshToken()
@@ -285,7 +287,7 @@ public class AuthServiceImpl(
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var expires = DateTime.Now.AddMinutes(_jwtSettings.AccessTokenDurationInMinutes);
+        var expires = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenDurationInMinutes);
 
         var token = new JwtSecurityToken(
             issuer: _jwtSettings.Issuer,
@@ -332,7 +334,7 @@ public class AuthServiceImpl(
         return principal;
     }
 
-    public async Task<LoginResponse> GoogleLogin(GoogleLoginRequest request)
+    public async Task<LoginResponse> GoogleLogin(GoogleLoginRequest request, DeviceInfo deviceInfo)
     {
         var httpClient = _httpClientFactory.CreateClient();
 
@@ -398,10 +400,18 @@ public class AuthServiceImpl(
         var accessToken = GenerateAccessToken(user);
         var refreshToken = GenerateRefreshToken();
 
-        user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(
-            _jwtSettings.RefreshTokenDurationInDays
-        );
+        var userToken = new UserToken
+        {
+            UserId = user.Id,
+            Token = refreshToken,
+            TokenType = TokenTypes.RefreshToken,
+            ExpiryTime = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenDurationInDays),
+            DeviceType = deviceInfo.DeviceType,
+            OS = deviceInfo.OS,
+            Browser = deviceInfo.Browser,
+        };
+
+        _context.UserTokens.Add(userToken);
 
         await _context.SaveChangesAsync();
 

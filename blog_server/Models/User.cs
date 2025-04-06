@@ -30,16 +30,12 @@ public class User : BaseEntity
     [Column("avatar_url")]
     public string? AvatarUrl { get; set; }
 
-    [Column("refresh_token")]
-    public string? RefreshToken { get; set; }
-
-    [Column("refresh_token_expiry_time")]
-    public DateTime? RefreshTokenExpiryTime { get; set; }
-
     [Column("status")]
     public AppStatus Status { get; set; } = AppStatus.Active;
 
     [Column("is_email_verified")]
     public bool IsEmailVerified { get; set; } = false;
+
     public ICollection<UserRole> UserRoles { get; set; } = [];
+    public ICollection<UserToken> UserTokens { get; set; } = [];
 }
