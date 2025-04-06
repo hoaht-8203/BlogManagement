@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '../ui/button';
 import { useEffect, useState } from 'react';
+import { LogOutIcon, MonitorCog, UserCircle2Icon } from 'lucide-react';
 
 const Header = () => {
   const router = useRouter();
@@ -71,10 +72,15 @@ const Header = () => {
                 <DropdownMenuContent className="mr-5">
                   <DropdownMenuLabel>{user.username}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => router.push('/profile')}>
-                    Profile
+                  <DropdownMenuItem onClick={() => router.push('/admin/dashboard')}>
+                    <MonitorCog /> Admin Dashboard
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push('/profile')}>
+                    <UserCircle2Icon /> Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOutIcon /> Logout
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             )}

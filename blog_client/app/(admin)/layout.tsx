@@ -1,9 +1,8 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import './globals.css';
-import Header from '@/components/layouts/Header';
 import { Toaster } from 'react-hot-toast';
-import { Providers } from './providers';
+import '../globals.css';
+import { Providers } from '../providers';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -20,7 +19,7 @@ export const metadata: Metadata = {
   description: 'Blog management app',
 };
 
-export default function RootLayout({
+export default function UserRootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -34,7 +33,6 @@ export default function RootLayout({
         <Providers>
           <div className="min-h-screen">
             <div className="flex flex-col">
-              <Header />
               <div className="sm:min-h-[calc(100vh-360px)]">
                 <div className="mx-auto flex max-w-(--ui-container) flex-col gap-10 px-4 sm:px-6 lg:px-8">
                   {children}
