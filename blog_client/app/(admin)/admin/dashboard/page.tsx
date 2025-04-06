@@ -1,12 +1,7 @@
-import Link from 'next/link';
-import React from 'react';
+'use client';
 
 const AdminDashboard = () => {
-  return (
-    <div>
-      This is admin dashboard <Link href={'/'}>Go to user page</Link>
-    </div>
-  );
+  return <div className="m-2">Dashboard</div>;
 };
 
 export default AdminDashboard;
