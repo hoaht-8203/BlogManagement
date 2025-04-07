@@ -26,6 +26,11 @@ const items = [
     url: '/admin/users',
     icon: Inbox,
   },
+  {
+    title: 'Back to home',
+    url: '/',
+    icon: Inbox,
+  },
 ];
 
 export function AppSidebar() {
@@ -44,7 +49,10 @@ export function AppSidebar() {
                     <Link
                       style={
                         pathName === item.url
-                          ? { backgroundColor: 'oklch(96.7% 0.003 264.542)' }
+                          ? {
+                              backgroundColor: 'oklch(96.7% 0.003 264.542)',
+                              color: 'oklch(0.623 0.214 259.815)',
+                            }
                           : {}
                       }
                       href={item.url}

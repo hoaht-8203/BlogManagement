@@ -28,24 +28,13 @@ export default function AdminRootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <script src="https://accounts.google.com/gsi/client" async defer></script>
-      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <AntdRegistry>
           <ConfigProvider>
             <Providers>
               <SidebarProvider>
                 <AppSidebar />
-                <main
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    marginLeft: '8px',
-                    marginRight: '8px',
-                    marginTop: '8px',
-                  }}
-                >
+                <main className="mx-2 mt-2 w-full">
                   <SidebarTrigger />
                   {children}
                 </main>
