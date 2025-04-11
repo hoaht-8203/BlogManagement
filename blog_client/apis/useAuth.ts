@@ -7,10 +7,7 @@ import toast from 'react-hot-toast';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ApiResponse } from '@/types/api';
-
-export const QUERY_KEYS = {
-  USER: 'user',
-};
+import { QUERY_KEYS } from '@/types/api_key';
 
 export const useAuth = () => {
   const router = useRouter();
@@ -22,7 +19,7 @@ export const useAuth = () => {
   }, []);
 
   const { data: userInfo, isLoading: isLoadingUser } = useQuery({
-    queryKey: [QUERY_KEYS.USER],
+    queryKey: [QUERY_KEYS.AUTHENTICATED_USER],
     queryFn: authService.myInfor,
     enabled: isClient && !!localStorage.getItem('accessToken'),
     retry: false,
@@ -39,7 +36,7 @@ export const useAuth = () => {
       localStorage.setItem('refreshToken', response.data.refreshToken);
 
       await queryClient.fetchQuery({
-        queryKey: [QUERY_KEYS.USER],
+        queryKey: [QUERY_KEYS.AUTHENTICATED_USER],
         queryFn: authService.myInfor,
       });
 
@@ -61,7 +58,7 @@ export const useAuth = () => {
       localStorage.setItem('refreshToken', response.data.refreshToken);
 
       await queryClient.fetchQuery({
-        queryKey: [QUERY_KEYS.USER],
+        queryKey: [QUERY_KEYS.AUTHENTICATED_USER],
         queryFn: authService.myInfor,
       });
 
@@ -89,7 +86,7 @@ export const useAuth = () => {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
 
-      queryClient.removeQueries({ queryKey: [QUERY_KEYS.USER] });
+      queryClient.removeQueries({ queryKey: [QUERY_KEYS.AUTHENTICATED_USER] });
 
       toast.success('Logged out successfully');
 
@@ -129,7 +126,7 @@ export const useAuth = () => {
     mutationFn: authService.updateInfo,
     onSuccess: (data: ApiResponse<string>) => {
       toast.success(data.message);
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.AUTHENTICATED_USER] });
     },
   });
 
@@ -137,7 +134,7 @@ export const useAuth = () => {
     mutationFn: authService.resetPassword,
     onSuccess: (data: ApiResponse<string>) => {
       toast.success(data.message);
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.AUTHENTICATED_USER] });
     },
     onError: (error: ApiError) => {
       toast.error(`${error.message}`);

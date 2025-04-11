@@ -12,4 +12,7 @@ export const API_ENDPOINTS = {
     UPDATE_INFO: '/auth/update-info',
     RESET_PASSWORD: '/auth/reset-password',
   },
+  USER: {
+    LIST: '/user/list',
+  },
 } as const;

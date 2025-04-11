@@ -1,6 +1,7 @@
 using AutoMapper;
 using blog_server.DTOs.Auth;
 using blog_server.DTOs.Category;
+using blog_server.DTOs.User;
 using blog_server.Models;
 
 namespace blog_server.Mappings;
@@ -44,5 +45,12 @@ public class MappingProfile : Profile
             );
         CreateMap<Category, ParentCategoryDto>();
         CreateMap<Category, ChildCategoryDto>();
+
+        // User
+        CreateMap<User, ListUserResponse>()
+            .ForMember(
+                dest => dest.Roles,
+                opt => opt.MapFrom(src => src.UserRoles.Select(ur => ur.Role.Name).ToList())
+            );
     }
 }

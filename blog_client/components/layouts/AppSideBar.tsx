@@ -1,6 +1,5 @@
 'use client';
 
-import { Home, Inbox } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -11,27 +10,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
+import { AdminNavbarItems } from '@/types/navbar';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-
-// Menu items.
-const items = [
-  {
-    title: 'Dashboard',
-    url: '/admin/dashboard',
-    icon: Home,
-  },
-  {
-    title: 'User Management',
-    url: '/admin/users',
-    icon: Inbox,
-  },
-  {
-    title: 'Back to home',
-    url: '/',
-    icon: Inbox,
-  },
-];
 
 export function AppSidebar() {
   const pathName = usePathname();
@@ -43,7 +24,7 @@ export function AppSidebar() {
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
+              {AdminNavbarItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <Link

@@ -8,24 +8,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace blog_server.Services.Impl;
 
-public class CategoryServiceImpl : ICategoryService
+public class CategoryServiceImpl(
+    ApplicationDbContext context,
+    IMapper mapper,
+    IRedisCacheService redisCache
+) : ICategoryService
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
-    private readonly IRedisCacheService _redisCache;
+    private readonly ApplicationDbContext _context = context;
+    private readonly IMapper _mapper = mapper;
+    private readonly IRedisCacheService _redisCache = redisCache;
     private const string CACHE_KEY_PREFIX = "category:";
     private static readonly TimeSpan CACHE_DURATION = TimeSpan.FromMinutes(30);
-
-    public CategoryServiceImpl(
-        ApplicationDbContext context,
-        IMapper mapper,
-        IRedisCacheService redisCache
-    )
-    {
-        _context = context;
-        _mapper = mapper;
-        _redisCache = redisCache;
-    }
 
     public async Task<CreateCategoryResponse> CreateCategory(CreateCategoryRequest request)
     {

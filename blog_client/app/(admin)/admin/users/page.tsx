@@ -1,90 +1,118 @@
 'use client';
 
-import { Breadcrumb, Space, Table, TableProps, Tag } from 'antd';
-import React from 'react';
+import { userService } from '@/services/user.service';
+import { QUERY_KEYS } from '@/types/api_key';
+import { ListUserResponse } from '@/types/user';
+import { useQuery } from '@tanstack/react-query';
+import { Breadcrumb, Button, Space, Table, TableProps, Tag, Tooltip } from 'antd';
+import { ReloadOutlined } from '@ant-design/icons';
 
-interface DataType {
-  key: string;
-  name: string;
-  age: number;
-  address: string;
-  tags: string[];
-}
-
-const data: DataType[] = [
+const columns: TableProps<ListUserResponse>['columns'] = [
   {
-    key: '1',
-    name: 'John Brown',
-    age: 32,
-    address: 'New York No. 1 Lake Park',
-    tags: ['nice', 'developer'],
+    title: '#',
+    dataIndex: 'index',
+    key: 'index',
+    render(value, record, index) {
+      return <span>{index + 1}</span>;
+    },
+    width: 40,
+    align: 'center',
   },
   {
-    key: '2',
-    name: 'Jim Green',
-    age: 42,
-    address: 'London No. 1 Lake Park',
-    tags: ['loser'],
+    title: 'Username',
+    dataIndex: 'username',
+    key: 'username',
+    width: 100,
   },
   {
-    key: '3',
-    name: 'Joe Black',
-    age: 32,
-    address: 'Sydney No. 1 Lake Park',
-    tags: ['cool', 'teacher'],
-  },
-];
-
-const columns: TableProps<DataType>['columns'] = [
-  {
-    title: 'Name',
-    dataIndex: 'name',
-    key: 'name',
-    render: (text) => <a>{text}</a>,
+    title: 'Email',
+    dataIndex: 'email',
+    key: 'email',
+    width: 230,
   },
   {
-    title: 'Age',
-    dataIndex: 'age',
-    key: 'age',
+    title: 'Full Name',
+    dataIndex: 'fullName',
+    key: 'fullname',
+    width: 200,
   },
   {
     title: 'Address',
     dataIndex: 'address',
     key: 'address',
+    width: 200,
   },
   {
-    title: 'Tags',
-    key: 'tags',
-    dataIndex: 'tags',
-    render: (_, { tags }) => (
+    title: 'Phone Number',
+    dataIndex: 'phone',
+    key: 'phone',
+    width: 120,
+  },
+  {
+    title: 'Email Verified',
+    dataIndex: 'isEmailVerified',
+    key: 'isEmailVerified',
+    render: (text) => {
+      return <Tag color={text ? 'green' : 'red'}>{text ? 'Verified' : 'Not Verified'}</Tag>;
+    },
+    width: 120,
+  },
+  {
+    title: 'Roles',
+    key: 'roles',
+    dataIndex: 'roles',
+    render: (_, { roles }) => (
       <>
-        {tags.map((tag) => {
-          let color = tag.length > 5 ? 'geekblue' : 'green';
-          if (tag === 'loser') {
-            color = 'volcano';
-          }
-          return (
-            <Tag color={color} key={tag}>
-              {tag.toUpperCase()}
-            </Tag>
-          );
+        {roles.map((role) => {
+          return <Tag key={role}>role</Tag>;
         })}
       </>
     ),
+    width: 120,
+  },
+  {
+    title: 'Create Date',
+    dataIndex: 'createDate',
+    key: 'createDate',
+    render: (text) => {
+      return <span>{new Date(text).toLocaleString()}</span>;
+    },
+    width: 170,
+  },
+  {
+    title: 'Update Date',
+    dataIndex: 'updateDate',
+    key: 'updateDate',
+    render: (text) => {
+      return <span>{new Date(text).toLocaleString()}</span>;
+    },
+    width: 170,
   },
   {
     title: 'Action',
     key: 'action',
     render: (_, record) => (
       <Space size="middle">
-        <a>Invite {record.name}</a>
+        <a>Invite</a>
         <a>Delete</a>
       </Space>
     ),
+    width: 120,
   },
 ];
 
 const UserManagementPage = () => {
+  // const queryClient = useQueryClient();
+
+  const {
+    data: users,
+    isFetching: isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: [QUERY_KEYS.MANAGE_USER.LIST],
+    queryFn: userService.listUser,
+  });
+
   return (
     <div>
       <div className="my-3">
@@ -100,7 +128,26 @@ const UserManagementPage = () => {
         />
       </div>
 
-      <Table<DataType> columns={columns} dataSource={data} bordered />
+      <div className="my-3 flex items-end justify-between">
+        <div>
+          <Tag color="#108ee9">Tổng: {users?.data?.length ?? 0} người dùng</Tag>
+        </div>
+        <div>
+          <Tooltip placement="leftBottom" title={'Refresh'}>
+            <Button type="primary" icon={<ReloadOutlined />} onClick={() => refetch()} />
+          </Tooltip>
+        </div>
+      </div>
+
+      <Table<ListUserResponse>
+        columns={columns}
+        dataSource={users?.data || undefined}
+        bordered
+        size="small"
+        loading={isLoading}
+        rowKey={(record) => record.id}
+        scroll={{ x: '1500px' }}
+      />
     </div>
   );
 };
