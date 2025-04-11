@@ -295,7 +295,7 @@ public class AuthServiceImpl(
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var expires = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenDurationInDays);
+        var expires = DateTime.UtcNow.AddDays(_jwtSettings.AccessTokenDurationInDays);
 
         var token = new JwtSecurityToken(
             issuer: _jwtSettings.Issuer,

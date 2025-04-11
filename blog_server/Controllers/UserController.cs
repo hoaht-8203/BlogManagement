@@ -14,13 +14,13 @@ namespace blog_server.Controllers
 
         [Authorize(Roles = "ADMIN")]
         [HttpGet("list")]
-        public async Task<ActionResult<ApiResponse<List<ListUserResponse>>>> List(
+        public async Task<ActionResult<ApiResponse<PaginatedList<ListUserResponse>>>> List(
             [FromQuery] ListUserRequest request
         )
         {
             var response = await _userService.ListUsers(request);
             return Ok(
-                ApiResponse<List<ListUserResponse>>.SuccessResponse(
+                ApiResponse<PaginatedList<ListUserResponse>>.SuccessResponse(
                     response,
                     "Get list user success"
                 )
