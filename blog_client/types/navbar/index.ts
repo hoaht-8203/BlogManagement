@@ -1,18 +1,18 @@
-import { Home, Inbox } from 'lucide-react';
+import { Gauge, Inbox, Users } from 'lucide-react';
 
 export const AdminNavbarItems = [
   {
-    title: 'Dashboard',
+    title: 'Bảng điều khiển',
     url: '/admin/dashboard',
-    icon: Home,
+    icon: Gauge,
   },
   {
-    title: 'User Management',
+    title: 'Quản lý người dùng',
     url: '/admin/users',
-    icon: Inbox,
+    icon: Users,
   },
   {
-    title: 'Back to home',
+    title: 'Trang chủ',
     url: '/',
     icon: Inbox,
   },

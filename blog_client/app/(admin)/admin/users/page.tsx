@@ -3,13 +3,13 @@
 import { userService } from '@/services/user.service';
 import { QUERY_KEYS } from '@/types/api_key';
 import { ListUserResponse } from '@/types/user';
-import { useQuery } from '@tanstack/react-query';
-import { Breadcrumb, Button, Space, Table, TableProps, Tag, Tooltip } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
+import { useQuery } from '@tanstack/react-query';
+import { Breadcrumb, Button, Table, TableProps, Tag, Tooltip } from 'antd';
 
-const columns: TableProps<ListUserResponse>['columns'] = [
+export const columns: TableProps<ListUserResponse>['columns'] = [
   {
-    title: '#',
+    title: 'STT',
     dataIndex: 'index',
     key: 'index',
     render(value, record, index) {
@@ -17,12 +17,14 @@ const columns: TableProps<ListUserResponse>['columns'] = [
     },
     width: 40,
     align: 'center',
+    fixed: 'left',
   },
   {
-    title: 'Username',
+    title: 'Tên người dùng',
     dataIndex: 'username',
     key: 'username',
-    width: 100,
+    width: 130,
+    fixed: 'left',
   },
   {
     title: 'Email',
@@ -31,34 +33,43 @@ const columns: TableProps<ListUserResponse>['columns'] = [
     width: 230,
   },
   {
-    title: 'Full Name',
+    title: 'Họ và tên',
     dataIndex: 'fullName',
     key: 'fullname',
+    render(text) {
+      return <span>{text ? text : '-'}</span>;
+    },
     width: 200,
   },
   {
-    title: 'Address',
+    title: 'Địa chỉ',
     dataIndex: 'address',
     key: 'address',
+    render(text) {
+      return <span>{text ? text : '-'}</span>;
+    },
     width: 200,
   },
   {
-    title: 'Phone Number',
+    title: 'Số điện thoại',
     dataIndex: 'phone',
     key: 'phone',
-    width: 120,
-  },
-  {
-    title: 'Email Verified',
-    dataIndex: 'isEmailVerified',
-    key: 'isEmailVerified',
-    render: (text) => {
-      return <Tag color={text ? 'green' : 'red'}>{text ? 'Verified' : 'Not Verified'}</Tag>;
+    render(text) {
+      return <span>{text ? text : '-'}</span>;
     },
     width: 120,
   },
   {
-    title: 'Roles',
+    title: 'Trạng thái email',
+    dataIndex: 'isEmailVerified',
+    key: 'isEmailVerified',
+    render(text) {
+      return <Tag color={text ? 'green' : 'red'}>{text ? 'Đã xác thực' : 'Chưa xác thực'}</Tag>;
+    },
+    width: 130,
+  },
+  {
+    title: 'Vai trò',
     key: 'roles',
     dataIndex: 'roles',
     render: (_, { roles }) => (
@@ -71,7 +82,7 @@ const columns: TableProps<ListUserResponse>['columns'] = [
     width: 120,
   },
   {
-    title: 'Create Date',
+    title: 'Ngày tạo',
     dataIndex: 'createDate',
     key: 'createDate',
     render: (text) => {
@@ -80,7 +91,7 @@ const columns: TableProps<ListUserResponse>['columns'] = [
     width: 170,
   },
   {
-    title: 'Update Date',
+    title: 'Ngày cập nhật',
     dataIndex: 'updateDate',
     key: 'updateDate',
     render: (text) => {
@@ -89,21 +100,15 @@ const columns: TableProps<ListUserResponse>['columns'] = [
     width: 170,
   },
   {
-    title: 'Action',
+    title: 'Hành động',
     key: 'action',
-    render: (_, record) => (
-      <Space size="middle">
-        <a>Invite</a>
-        <a>Delete</a>
-      </Space>
-    ),
-    width: 120,
+    width: 90,
+    fixed: 'right',
+    align: 'center',
   },
 ];
 
 const UserManagementPage = () => {
-  // const queryClient = useQueryClient();
-
   const {
     data: users,
     isFetching: isLoading,
@@ -119,10 +124,10 @@ const UserManagementPage = () => {
         <Breadcrumb
           items={[
             {
-              title: 'User Management',
+              title: 'Quản lý người dùng',
             },
             {
-              title: 'Users',
+              title: 'Danh sách người dùng',
             },
           ]}
         />
@@ -146,7 +151,7 @@ const UserManagementPage = () => {
         size="small"
         loading={isLoading}
         rowKey={(record) => record.id}
-        scroll={{ x: '1500px' }}
+        scroll={{ x: 'max-content' }}
       />
     </div>
   );
