@@ -148,14 +148,21 @@ public class AuthServiceImpl(
 
     public async Task<RefreshTokenResponse> RefreshToken(RefreshTokenRequest request)
     {
+        var principal = GetPrincipalFromExpiredToken(request.AccessToken);
+        var userId =
+            (principal.FindFirst(ClaimTypes.NameIdentifier)?.Value)
+            ?? throw new ApiException("Invalid token", StatusCodes.Status401Unauthorized);
+
         var userToken =
             await _context
                 .UserTokens.Include(ut => ut.User)
+                .ThenInclude(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role)
+                .OrderByDescending(ut => ut.CreatedAt)
                 .FirstOrDefaultAsync(ut =>
-                    ut.UserId == _currentUser.UserId
+                    ut.UserId.ToString() == userId
                     && ut.Token == request.RefreshToken
                     && ut.TokenType == TokenTypes.RefreshToken
-                    && ut.ExpiryTime > DateTime.UtcNow
                 )
             ?? throw new ApiException(
                 "Invalid or expired refresh token",
@@ -168,6 +175,7 @@ public class AuthServiceImpl(
         userToken.Token = newRefreshToken;
         userToken.ExpiryTime = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenDurationInDays);
 
+        _context.UserTokens.Update(userToken);
         await _context.SaveChangesAsync();
 
         var userCacheDto = _mapper.Map<UserCacheDto>(userToken.User);
@@ -287,7 +295,7 @@ public class AuthServiceImpl(
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var expires = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenDurationInMinutes);
+        var expires = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenDurationInDays);
 
         var token = new JwtSecurityToken(
             issuer: _jwtSettings.Issuer,
