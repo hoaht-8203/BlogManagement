@@ -154,6 +154,7 @@ builder.Services.AddScoped<ICategoryService, CategoryServiceImpl>();
 builder.Services.AddScoped<IRedisCacheService, RedisCacheServiceImpl>();
 builder.Services.AddScoped<IEmailService, EmailServiceImpl>();
 builder.Services.AddScoped<IUserService, UserServiceImpl>();
+builder.Services.AddScoped<ITypeService, TypeServiceImpl>();
 
 builder.Services.AddHttpClient();
 

@@ -1,6 +1,8 @@
 using AutoMapper;
+using blog_server.Constants;
 using blog_server.DTOs.Auth;
 using blog_server.DTOs.Category;
+using blog_server.DTOs.Type;
 using blog_server.DTOs.User;
 using blog_server.Models;
 
@@ -52,5 +54,9 @@ public class MappingProfile : Profile
                 dest => dest.Roles,
                 opt => opt.MapFrom(src => src.UserRoles.Select(ur => ur.Role.Name).ToList())
             );
+
+        // Type
+        CreateMap<Role, ListRoleTypeResponse>();
+        CreateMap<AppStatus, ListStatusTypeResponse>();
     }
 }
