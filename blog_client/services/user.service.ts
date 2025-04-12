@@ -1,13 +1,17 @@
 import axiosInstance from '@/configs/axios';
 import { API_ENDPOINTS } from '@/constants/endpoints';
-import { ApiResponse } from '@/types/api';
-import { MyInfoResponse } from '@/types/auth';
-import { ListUserResponse } from '@/types/user';
+import { ApiResponse, PaginatedList } from '@/types/api';
+import { ListUserRequest, ListUserResponse } from '@/types/user';
 
 export const userService = {
-  listUser: async (): Promise<ApiResponse<ListUserResponse[]>> => {
-    const response = await axiosInstance.get<ApiResponse<ListUserResponse[]>>(
+  listUser: async (
+    params: ListUserRequest,
+  ): Promise<ApiResponse<PaginatedList<ListUserResponse>>> => {
+    const response = await axiosInstance.get<ApiResponse<PaginatedList<ListUserResponse>>>(
       API_ENDPOINTS.USER.LIST,
+      {
+        params,
+      },
     );
     return response.data;
   },

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace blog_server.Models;
 
-public abstract class BaseEntity
+public class BaseEntity
 {
     [Column("create_date")]
     public DateTime CreateDate { get; set; }

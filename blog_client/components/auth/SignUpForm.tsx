@@ -53,6 +53,9 @@ const SignUpForm = () => {
         onSuccess() {
           setLoadingSubmitForm(false);
         },
+        onSettled() {
+          setLoadingSubmitForm(false);
+        },
       },
     );
   }

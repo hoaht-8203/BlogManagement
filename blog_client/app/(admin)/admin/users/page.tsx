@@ -1,122 +1,55 @@
 'use client';
 
+import UsersSearchForm from '@/components/admin/users/UsersSearchForm';
+import { usersTableColumns } from '@/components/admin/users/usersTableColumns';
 import { userService } from '@/services/user.service';
+import { ApiResponse, PaginatedList } from '@/types/api';
 import { QUERY_KEYS } from '@/types/api_key';
-import { ListUserResponse } from '@/types/user';
+import { ListUserRequest, ListUserResponse } from '@/types/user';
+import { TableParams } from '@/types/table';
 import { ReloadOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import { Breadcrumb, Button, Table, TableProps, Tag, Tooltip } from 'antd';
-
-export const columns: TableProps<ListUserResponse>['columns'] = [
-  {
-    title: 'STT',
-    dataIndex: 'index',
-    key: 'index',
-    render(value, record, index) {
-      return <span>{index + 1}</span>;
-    },
-    width: 40,
-    align: 'center',
-    fixed: 'left',
-  },
-  {
-    title: 'Tên người dùng',
-    dataIndex: 'username',
-    key: 'username',
-    width: 130,
-    fixed: 'left',
-  },
-  {
-    title: 'Email',
-    dataIndex: 'email',
-    key: 'email',
-    width: 230,
-  },
-  {
-    title: 'Họ và tên',
-    dataIndex: 'fullName',
-    key: 'fullname',
-    render(text) {
-      return <span>{text ? text : '-'}</span>;
-    },
-    width: 200,
-  },
-  {
-    title: 'Địa chỉ',
-    dataIndex: 'address',
-    key: 'address',
-    render(text) {
-      return <span>{text ? text : '-'}</span>;
-    },
-    width: 200,
-  },
-  {
-    title: 'Số điện thoại',
-    dataIndex: 'phone',
-    key: 'phone',
-    render(text) {
-      return <span>{text ? text : '-'}</span>;
-    },
-    width: 120,
-  },
-  {
-    title: 'Trạng thái email',
-    dataIndex: 'isEmailVerified',
-    key: 'isEmailVerified',
-    render(text) {
-      return <Tag color={text ? 'green' : 'red'}>{text ? 'Đã xác thực' : 'Chưa xác thực'}</Tag>;
-    },
-    width: 130,
-  },
-  {
-    title: 'Vai trò',
-    key: 'roles',
-    dataIndex: 'roles',
-    render: (_, { roles }) => (
-      <>
-        {roles.map((role) => {
-          return <Tag key={role}>role</Tag>;
-        })}
-      </>
-    ),
-    width: 120,
-  },
-  {
-    title: 'Ngày tạo',
-    dataIndex: 'createDate',
-    key: 'createDate',
-    render: (text) => {
-      return <span>{new Date(text).toLocaleString()}</span>;
-    },
-    width: 170,
-  },
-  {
-    title: 'Ngày cập nhật',
-    dataIndex: 'updateDate',
-    key: 'updateDate',
-    render: (text) => {
-      return <span>{new Date(text).toLocaleString()}</span>;
-    },
-    width: 170,
-  },
-  {
-    title: 'Hành động',
-    key: 'action',
-    width: 90,
-    fixed: 'right',
-    align: 'center',
-  },
-];
+import { useState } from 'react';
 
 const UserManagementPage = () => {
+  const [tableParams, setTableParams] = useState<TableParams>({
+    pagination: {
+      current: 1,
+      pageSize: 10,
+      total: 0,
+    },
+  });
+
   const {
     data: users,
     isFetching: isLoading,
     refetch,
-  } = useQuery({
-    queryKey: [QUERY_KEYS.MANAGE_USER.LIST],
-    queryFn: userService.listUser,
+  } = useQuery<ApiResponse<PaginatedList<ListUserResponse>>>({
+    queryKey: [
+      QUERY_KEYS.MANAGE_USER.LIST,
+      tableParams.pagination?.current,
+      tableParams.pagination?.pageSize,
+    ],
+    queryFn: () =>
+      userService.listUser({
+        pageNumber: tableParams.pagination?.current || 1,
+        pageSize: tableParams.pagination?.pageSize || 10,
+      }),
   });
+
+  const handleTableChange: TableProps<ListUserResponse>['onChange'] = (pagination) => {
+    setTableParams({
+      pagination: {
+        ...pagination,
+        total: users?.data?.totalRecords || 0,
+      },
+    });
+  };
+
+  const handleSearch = (values: ListUserRequest) => {
+    console.log(values);
+  };
 
   return (
     <div>
@@ -135,23 +68,43 @@ const UserManagementPage = () => {
 
       <div className="my-3 flex items-end justify-between">
         <div>
-          <Tag color="#108ee9">Tổng: {users?.data?.length ?? 0} người dùng</Tag>
+          <UsersSearchForm onSearch={handleSearch} />
         </div>
         <div>
-          <Tooltip placement="leftBottom" title={'Refresh'}>
-            <Button type="primary" icon={<ReloadOutlined />} onClick={() => refetch()} />
+          <Tooltip placement="leftBottom" title={'Làm mới'}>
+            <Button
+              disabled={isLoading}
+              type="primary"
+              icon={<ReloadOutlined />}
+              onClick={() => refetch()}
+            />
           </Tooltip>
         </div>
       </div>
 
       <Table<ListUserResponse>
-        columns={columns}
-        dataSource={users?.data || undefined}
+        columns={usersTableColumns(
+          tableParams.pagination?.current || 1,
+          tableParams.pagination?.pageSize || 10,
+        )}
+        dataSource={users?.data?.items || []}
         bordered
         size="small"
         loading={isLoading}
         rowKey={(record) => record.id}
-        scroll={{ x: 'max-content' }}
+        scroll={{ x: 'max-content', y: 'max-content' }}
+        pagination={{
+          current: tableParams.pagination?.current,
+          pageSize: tableParams.pagination?.pageSize,
+          total: users?.data?.totalRecords || 0,
+          showSizeChanger: true,
+          showTotal: (total) => (
+            <>
+              <Tag color="#108ee9">Tổng: {total ?? 0} người dùng</Tag>
+            </>
+          ),
+        }}
+        onChange={handleTableChange}
       />
     </div>
   );

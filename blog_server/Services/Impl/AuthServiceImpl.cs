@@ -234,11 +234,13 @@ public class AuthServiceImpl(
 
         _context.Users.Add(user);
         _context.UserRoles.Add(newUserRole);
+        await _context.SaveChangesAsync();
 
         var random = new Random();
         var token = random.Next(100000, 999999).ToString();
         var emailVerificationToken = new UserToken
         {
+            UserId = user.Id,
             Email = user.Email,
             Token = token,
             TokenType = TokenTypes.EmailVerification,

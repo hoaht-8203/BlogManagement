@@ -71,12 +71,12 @@ export const useAuth = () => {
 
   const register = useMutation({
     mutationFn: authService.register,
-    onSuccess: () => {
-      toast.success('Registration successful! Please login.');
-      router.push('/login');
+    onSuccess: (response) => {
+      toast.success('Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.');
+      router.push(`/verify-email?email=${response.data?.email}`);
     },
     onError: (error: ApiError) => {
-      toast.error(`Registration failed: ${error.message}`);
+      toast.error(`Đăng ký thất bại: ${error.message}`);
     },
   });
 

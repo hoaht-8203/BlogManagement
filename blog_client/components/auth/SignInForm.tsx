@@ -53,6 +53,9 @@ const SignInForm = () => {
         onSuccess() {
           setIsLoadingForm(false);
         },
+        onSettled() {
+          setIsLoadingForm(false);
+        },
       },
     );
   }
