@@ -34,7 +34,7 @@ const UpdateInfoTab: React.FC<{ user: MyInfoResponse }> = ({ user }) => {
       fullName: values.fullName?.trim() || '',
       phone: values.phone?.trim() || '',
       address: values.address?.trim() || '',
-      avatarUrl: user.avatarUrl.trim(),
+      avatarUrl: user.avatarUrl?.trim() || '',
     });
   }
 

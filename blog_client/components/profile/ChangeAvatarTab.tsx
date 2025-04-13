@@ -6,6 +6,7 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { ImageIcon } from 'lucide-react';
 import { useState } from 'react';
+import Image from 'next/image';
 
 const formSchema = z.object({
   avatar: z.any(),
@@ -17,14 +18,14 @@ const ChangeAvatarTab = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      avatar: null,
+      avatar: undefined,
     },
   });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      form.setValue('avatar', file);
+      form.setValue('avatar', file, { shouldValidate: true });
       const url = URL.createObjectURL(file);
       setPreviewUrl(url);
     }
@@ -40,19 +41,11 @@ const ChangeAvatarTab = () => {
         <FormField
           control={form.control}
           name="avatar"
-          render={({ field: { onChange, value, ...field } }) => (
+          render={() => (
             <FormItem>
               <FormLabel>Ảnh đại diện</FormLabel>
               <FormControl>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    handleFileChange(e);
-                    onChange(e.target.files?.[0]);
-                  }}
-                  {...field}
-                />
+                <Input type="file" accept="image/*" onChange={handleFileChange} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -61,7 +54,13 @@ const ChangeAvatarTab = () => {
 
         {previewUrl && (
           <div className="relative h-[100px] w-[100px] overflow-hidden rounded-full">
-            <img src={previewUrl} alt="avatar" className="h-full w-full object-cover" />
+            <Image
+              src={previewUrl}
+              alt="avatar"
+              className="h-full w-full object-cover"
+              width={100}
+              height={100}
+            />
           </div>
         )}
 

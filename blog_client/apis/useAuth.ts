@@ -122,6 +122,17 @@ export const useAuth = () => {
     },
   });
 
+  const verifyEmail = useMutation({
+    mutationFn: authService.verifyEmail,
+    onSuccess: () => {
+      toast.success('Email đã được xác thực, vui lòng đăng nhập lại');
+      router.push('/login');
+    },
+    onError: (error: ApiError) => {
+      toast.error(`${error.message}`);
+    },
+  });
+
   const updateInfo = useMutation({
     mutationFn: authService.updateInfo,
     onSuccess: (data: ApiResponse<string>) => {
@@ -151,6 +162,7 @@ export const useAuth = () => {
     isLoadingUser: !isClient || isLoadingUser,
     forgotPassword,
     verifyResetToken,
+    verifyEmail,
     updateInfo,
     resetPassword,
   };

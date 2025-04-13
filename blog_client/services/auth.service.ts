@@ -13,6 +13,7 @@ import {
   RegisterResponse,
   ResetPasswordRequest,
   UpdateInfoRequest,
+  VerifyEmailRequest,
   VerifyResetTokenRequest,
 } from '@/types/auth';
 
@@ -88,6 +89,14 @@ export const authService = {
   resetPassword: async (data: ResetPasswordRequest): Promise<ApiResponse<string>> => {
     const response = await axiosInstance.post<ApiResponse<string>>(
       API_ENDPOINTS.AUTH.RESET_PASSWORD,
+      data,
+    );
+    return response.data;
+  },
+
+  verifyEmail: async (data: VerifyEmailRequest): Promise<ApiResponse<string>> => {
+    const response = await axiosInstance.post<ApiResponse<string>>(
+      API_ENDPOINTS.AUTH.VERIFY_EMAIL,
       data,
     );
     return response.data;

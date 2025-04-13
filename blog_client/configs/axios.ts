@@ -50,11 +50,22 @@ const handleUnauthorized = () => {
   }
 };
 
+const handleForbidden = () => {
+  if (isClient) {
+    window.location.href = '/403';
+  }
+};
+
 // Add response interceptor to handle token refresh
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
+    if (error.response.status === 403) {
+      handleForbidden();
+      throw new ApiError('Bạn không có quyền truy cập vào trang này', null, false);
+    }
 
     // Case 1: Refresh token API returns 401
     // This means both access token and refresh token are invalid

@@ -64,3 +64,8 @@ export interface UpdateInfoRequest {
   address: string;
   avatarUrl: string;
 }
+
+export interface VerifyEmailRequest {
+  email: string;
+  token: string;
+}

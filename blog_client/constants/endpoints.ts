@@ -11,6 +11,7 @@ export const API_ENDPOINTS = {
     VERIFY_RESET_TOKEN: '/auth/verify-reset-token',
     UPDATE_INFO: '/auth/update-info',
     RESET_PASSWORD: '/auth/reset-password',
+    VERIFY_EMAIL: '/auth/verify-email',
   },
   USER: {
     LIST: '/user/list',

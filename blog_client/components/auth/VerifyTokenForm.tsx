@@ -24,7 +24,7 @@ interface VerifyTokenFormProps {
 }
 
 export function VerifyTokenForm({ email }: VerifyTokenFormProps) {
-  const { verifyResetToken } = useAuth();
+  const { verifyEmail } = useAuth();
   const form = useForm<{ token: string }>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -33,7 +33,7 @@ export function VerifyTokenForm({ email }: VerifyTokenFormProps) {
   });
 
   const onSubmit = (values: { token: string }) => {
-    verifyResetToken.mutate({
+    verifyEmail.mutate({
       email,
       token: values.token,
     });
@@ -64,12 +64,8 @@ export function VerifyTokenForm({ email }: VerifyTokenFormProps) {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={verifyResetToken.isPending}>
-          {verifyResetToken.isPending ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            'Xác thực'
-          )}
+        <Button type="submit" className="w-full" disabled={verifyEmail.isPending}>
+          {verifyEmail.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Xác thực'}
         </Button>
       </form>
     </Form>
