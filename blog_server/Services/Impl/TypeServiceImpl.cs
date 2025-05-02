@@ -19,7 +19,7 @@ public class TypeServiceImpl(
     public readonly IRedisCacheService _redisCacheService = redisCacheService;
     public readonly string _cacheKey = "type";
 
-    public async Task<List<object>> ListType(ListTypeRequest request)
+    public async Task<List<ListTypeResponse>> ListType(ListTypeRequest request)
     {
         if (string.IsNullOrEmpty(request.Type) || string.IsNullOrWhiteSpace(request.Type))
         {
@@ -27,21 +27,21 @@ public class TypeServiceImpl(
         }
 
         var cacheKey = $"{_cacheKey}_{request.Type}";
-        var cacheData = await _redisCacheService.GetAsync<List<object>>(cacheKey);
+        var cacheData = await _redisCacheService.GetAsync<List<ListTypeResponse>>(cacheKey);
         if (cacheData != null && request.Type != AppTypes.APP_STATUS)
         {
             return cacheData;
         }
 
-        var response = new List<object>();
+        var response = new List<ListTypeResponse>();
 
         if (request.Type == AppTypes.APP_STATUS)
         {
-            response = _mapper.Map<List<object>>(ListStatusType());
+            response = ListStatusType();
         }
         else if (request.Type == AppTypes.APP_ROLES)
         {
-            response = _mapper.Map<List<object>>(await ListRoleType());
+            response = await ListRoleType();
         }
 
         await _redisCacheService.SetAsync(cacheKey, response);
@@ -49,26 +49,22 @@ public class TypeServiceImpl(
         return response;
     }
 
-    private static List<ListStatusTypeResponse> ListStatusType()
+    private static List<ListTypeResponse> ListStatusType()
     {
-        var response = new List<ListStatusTypeResponse>();
+        var response = new List<ListTypeResponse>();
         foreach (AppStatus status in Enum.GetValues(typeof(AppStatus)))
         {
             response.Add(
-                new ListStatusTypeResponse
-                {
-                    StatusValue = (int)status,
-                    StatusName = status.ToString(),
-                }
+                new ListTypeResponse { Name = status.ToString(), Value = ((int)status).ToString() }
             );
         }
         return response;
     }
 
-    private async Task<List<ListRoleTypeResponse>> ListRoleType()
+    private async Task<List<ListTypeResponse>> ListRoleType()
     {
         var roleList = await _context.Roles.ToListAsync();
-        var response = _mapper.Map<List<ListRoleTypeResponse>>(roleList);
+        var response = _mapper.Map<List<ListTypeResponse>>(roleList);
         return response;
     }
 }

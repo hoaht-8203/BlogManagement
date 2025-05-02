@@ -22,4 +22,5 @@ export interface ListUserRequest extends PaginationRequest {
   address?: string;
   phone?: string;
   status?: number;
+  roles?: string;
 }

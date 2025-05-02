@@ -5,5 +5,5 @@ namespace blog_server.Services;
 
 public interface ITypeService
 {
-    public Task<List<object>> ListType(ListTypeRequest request);
+    public Task<List<ListTypeResponse>> ListType(ListTypeRequest request);
 }

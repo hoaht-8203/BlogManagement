@@ -11,6 +11,8 @@ import { ReloadOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import { Breadcrumb, Button, Table, TableProps, Tag, Tooltip } from 'antd';
 import { useState } from 'react';
+import { ListTypeResponse } from '@/types/type';
+import { typeService } from '@/services/type.service';
 
 const UserManagementPage = () => {
   const [tableParams, setTableParams] = useState<TableParams>({
@@ -19,6 +21,11 @@ const UserManagementPage = () => {
       pageSize: 10,
       total: 0,
     },
+  });
+
+  const [searchParams, setSearchParams] = useState<ListUserRequest>({
+    pageNumber: 1,
+    pageSize: 10,
   });
 
   const {
@@ -30,12 +37,19 @@ const UserManagementPage = () => {
       QUERY_KEYS.MANAGE_USER.LIST,
       tableParams.pagination?.current,
       tableParams.pagination?.pageSize,
+      searchParams,
     ],
     queryFn: () =>
       userService.listUser({
+        ...searchParams,
         pageNumber: tableParams.pagination?.current || 1,
         pageSize: tableParams.pagination?.pageSize || 10,
       }),
+  });
+
+  const { data: roles } = useQuery<ApiResponse<ListTypeResponse[]>>({
+    queryKey: [QUERY_KEYS.MANAGE_TYPE.LIST_ROLES],
+    queryFn: () => typeService.listRolesType(),
   });
 
   const handleTableChange: TableProps<ListUserResponse>['onChange'] = (pagination) => {
@@ -48,7 +62,14 @@ const UserManagementPage = () => {
   };
 
   const handleSearch = (values: ListUserRequest) => {
-    console.log(values);
+    console.log('search', values);
+    setSearchParams(values);
+    setTableParams({
+      pagination: {
+        ...tableParams.pagination,
+        current: 1,
+      },
+    });
   };
 
   return (
@@ -68,7 +89,7 @@ const UserManagementPage = () => {
 
       <div className="my-3 flex items-end justify-between">
         <div>
-          <UsersSearchForm onSearch={handleSearch} />
+          <UsersSearchForm onSearch={handleSearch} roles={roles?.data || []} />
         </div>
         <div>
           <Tooltip placement="leftBottom" title={'Làm mới'}>

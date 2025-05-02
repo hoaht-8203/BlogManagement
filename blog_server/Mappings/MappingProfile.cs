@@ -56,7 +56,11 @@ public class MappingProfile : Profile
             );
 
         // Type
-        CreateMap<Role, ListRoleTypeResponse>();
-        CreateMap<AppStatus, ListStatusTypeResponse>();
+        CreateMap<Role, ListTypeResponse>()
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name.ToString()))
+            .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Id.ToString()));
+        CreateMap<AppStatus, ListTypeResponse>()
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.ToString()))
+            .ForMember(dest => dest.Value, opt => opt.MapFrom(src => ((int)src).ToString()));
     }
 }

@@ -14,12 +14,17 @@ namespace blog_server.Controllers
 
         [Authorize(Roles = "ADMIN")]
         [HttpGet("list")]
-        public async Task<ActionResult<ApiResponse<List<object>>>> List(
+        public async Task<ActionResult<ApiResponse<List<ListTypeResponse>>>> List(
             [FromQuery] ListTypeRequest request
         )
         {
             var response = await _typeService.ListType(request);
-            return Ok(ApiResponse<List<object>>.SuccessResponse(response, "Get list type success"));
+            return Ok(
+                ApiResponse<List<ListTypeResponse>>.SuccessResponse(
+                    response,
+                    "Get list type success"
+                )
+            );
         }
     }
 }

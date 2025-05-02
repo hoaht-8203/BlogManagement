@@ -1,4 +1,4 @@
-import { Gauge, Inbox, Users } from 'lucide-react';
+import { Gauge, Inbox, UserRoundCog, Users } from 'lucide-react';
 
 export const AdminNavbarItems = [
   {
@@ -10,6 +10,11 @@ export const AdminNavbarItems = [
     title: 'Quản lý người dùng',
     url: '/admin/users',
     icon: Users,
+  },
+  {
+    title: 'Quản lý vai trò',
+    url: '/admin/roles',
+    icon: UserRoundCog,
   },
   {
     title: 'Trang chủ',

@@ -1,13 +1,15 @@
 import { ListUserRequest } from '@/types/user';
-import { SearchOutlined } from '@ant-design/icons';
+import { ListTypeResponse } from '@/types/type';
+import { FilterOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button, Form, FormProps, Input, Select } from 'antd';
 import toast from 'react-hot-toast';
 
 interface UsersSearchFormProps {
   onSearch: (values: ListUserRequest) => void;
+  roles: ListTypeResponse[];
 }
 
-const UsersSearchForm: React.FC<UsersSearchFormProps> = ({ onSearch }) => {
+const UsersSearchForm: React.FC<UsersSearchFormProps> = ({ onSearch, roles }) => {
   const [form] = Form.useForm();
 
   const onFinish: FormProps<ListUserRequest>['onFinish'] = (values) => {
@@ -16,6 +18,20 @@ const UsersSearchForm: React.FC<UsersSearchFormProps> = ({ onSearch }) => {
 
   const onFinishFailed: FormProps<ListUserRequest>['onFinishFailed'] = (errorInfo) => {
     toast.error(`Lỗi khi tìm kiếm người dùng ${errorInfo.errorFields[0].errors[0]}`);
+  };
+
+  const handleReset = () => {
+    form.resetFields();
+    onSearch({
+      pageNumber: 1,
+      pageSize: 10,
+    });
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      form.submit();
+    }
   };
 
   return (
@@ -31,23 +47,53 @@ const UsersSearchForm: React.FC<UsersSearchFormProps> = ({ onSearch }) => {
         className="flex flex-wrap gap-y-4"
       >
         <Form.Item<ListUserRequest> name="username">
-          <Input allowClear size="large" placeholder="Tên người dùng" style={{ width: 200 }} />
+          <Input
+            allowClear
+            size="large"
+            placeholder="Tên người dùng"
+            style={{ width: 200 }}
+            onKeyDown={handleKeyDown}
+          />
         </Form.Item>
 
         <Form.Item<ListUserRequest> name="email">
-          <Input allowClear size="large" placeholder="Email" style={{ width: 200 }} />
+          <Input
+            allowClear
+            size="large"
+            placeholder="Email"
+            style={{ width: 200 }}
+            onKeyDown={handleKeyDown}
+          />
         </Form.Item>
 
         <Form.Item<ListUserRequest> name="fullName">
-          <Input allowClear size="large" placeholder="Họ tên" style={{ width: 200 }} />
+          <Input
+            allowClear
+            size="large"
+            placeholder="Họ tên"
+            style={{ width: 200 }}
+            onKeyDown={handleKeyDown}
+          />
         </Form.Item>
 
         <Form.Item<ListUserRequest> name="address">
-          <Input allowClear size="large" placeholder="Địa chỉ" style={{ width: 200 }} />
+          <Input
+            allowClear
+            size="large"
+            placeholder="Địa chỉ"
+            style={{ width: 200 }}
+            onKeyDown={handleKeyDown}
+          />
         </Form.Item>
 
         <Form.Item<ListUserRequest> name="phone">
-          <Input allowClear size="large" placeholder="Số điện thoại" style={{ width: 200 }} />
+          <Input
+            allowClear
+            size="large"
+            placeholder="Số điện thoại"
+            style={{ width: 200 }}
+            onKeyDown={handleKeyDown}
+          />
         </Form.Item>
 
         <Form.Item<ListUserRequest> name="status">
@@ -63,30 +109,28 @@ const UsersSearchForm: React.FC<UsersSearchFormProps> = ({ onSearch }) => {
           />
         </Form.Item>
 
-        <Form.Item<ListUserRequest> name="status">
+        <Form.Item<ListUserRequest> name="roles">
           <Select
             size="large"
             mode="multiple"
             allowClear
             style={{ width: 250 }}
             placeholder="Vai trò"
-            options={[
-              {
-                label: 'Admin',
-                value: 'ADMIN',
-              },
-              {
-                label: 'User',
-                value: 'USER',
-              },
-            ]}
+            options={roles.map((role) => ({
+              label: role.name,
+              value: role.value,
+            }))}
           />
         </Form.Item>
       </Form>
 
-      <div className="flex justify-start">
+      <div className="flex justify-start gap-2">
         <Button icon={<SearchOutlined />} type="primary" onClick={() => form.submit()}>
           Tìm kiếm
+        </Button>
+
+        <Button icon={<FilterOutlined />} type="primary" onClick={handleReset}>
+          Bỏ lọc
         </Button>
       </div>
     </div>

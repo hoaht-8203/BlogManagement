@@ -16,4 +16,7 @@ export const API_ENDPOINTS = {
   USER: {
     LIST: '/user/list',
   },
+  TYPE: {
+    LIST: '/type/list',
+  },
 } as const;

@@ -22,7 +22,10 @@ public class UserServiceImpl(ApplicationDbContext context, IMapper mapper) : IUs
             throw new ApiException("Invalid pagination request", StatusCodes.Status400BadRequest);
         }
 
-        var query = _context.Users.AsQueryable();
+        var query = _context
+            .Users.Include(u => u.UserRoles)
+            .ThenInclude(ur => ur.Role)
+            .AsQueryable();
 
         if (!string.IsNullOrEmpty(request.Username))
         {
@@ -54,13 +57,14 @@ public class UserServiceImpl(ApplicationDbContext context, IMapper mapper) : IUs
             query = query.Where(u => u.Status == (AppStatus)request.Status);
         }
 
+        if (request.Roles != null)
+        {
+            query = query.Where(u => u.UserRoles.Any(ur => request.Roles.Contains(ur.Role.Name)));
+        }
+
         var totalCount = await query.CountAsync();
 
-        var listUser = await _context
-            .Users.Include(u => u.UserRoles)
-            .ThenInclude(ur => ur.Role)
-            .Paginate(request.PageNumber, request.PageSize)
-            .ToListAsync();
+        var listUser = await query.Paginate(request.PageNumber, request.PageSize).ToListAsync();
 
         var mappedUsers = _mapper.Map<List<ListUserResponse>>(listUser);
         var result = new PaginatedList<ListUserResponse>(
@@ -69,6 +73,7 @@ public class UserServiceImpl(ApplicationDbContext context, IMapper mapper) : IUs
             request.PageSize,
             totalCount
         );
+
         return result;
     }
 }

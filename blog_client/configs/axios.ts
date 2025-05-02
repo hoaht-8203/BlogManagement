@@ -12,6 +12,9 @@ const axiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  paramsSerializer: {
+    indexes: null, // This will prevent adding [] to array parameter names
+  },
 });
 
 // Add request interceptor to add auth token

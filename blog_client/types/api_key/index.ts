@@ -3,4 +3,7 @@ export const QUERY_KEYS = {
   MANAGE_USER: {
     LIST: 'manage_user_list',
   },
+  MANAGE_TYPE: {
+    LIST_ROLES: 'manage_type_list_roles',
+  },
 };

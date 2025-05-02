@@ -11,5 +11,6 @@ public class ListUserRequest : PaginationRequest
     public string? FullName { get; set; }
     public string? Address { get; set; }
     public string? Phone { get; set; }
-    public int? Status { get; set; }
+    public AppStatus? Status { get; set; }
+    public List<AppRole>? Roles { get; set; }
 }
