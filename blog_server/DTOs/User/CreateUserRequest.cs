@@ -1,17 +1,23 @@
 using System;
-using blog_server.Constants;
-using blog_server.DTOs.Pagination;
+using System.ComponentModel.DataAnnotations;
 
 namespace blog_server.DTOs.User;
 
-public class ListUserRequest : PaginationRequest
+public class CreateUserRequest
 {
+    [Required]
+    [StringLength(50, MinimumLength = 3)]
     public string Username { get; set; } = string.Empty;
+
+    [Required]
+    [EmailAddress]
     public string Email { get; set; } = string.Empty;
-    public string Role { get; set; } = string.Empty;
+
+    [Required]
+    [StringLength(100, MinimumLength = 6)]
+    public string Password { get; set; } = string.Empty;
+
     public string? FullName { get; set; }
     public string? Address { get; set; }
     public string? Phone { get; set; }
-    public AppStatus? Status { get; set; }
-    public List<AppRole>? Roles { get; set; }
 }

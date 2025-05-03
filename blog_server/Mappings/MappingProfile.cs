@@ -2,9 +2,11 @@ using AutoMapper;
 using blog_server.Constants;
 using blog_server.DTOs.Auth;
 using blog_server.DTOs.Category;
+using blog_server.DTOs.Role;
 using blog_server.DTOs.Type;
 using blog_server.DTOs.User;
 using blog_server.Models;
+using blog_server.Services.Impl;
 
 namespace blog_server.Mappings;
 
@@ -62,5 +64,11 @@ public class MappingProfile : Profile
         CreateMap<AppStatus, ListTypeResponse>()
             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.ToString()))
             .ForMember(dest => dest.Value, opt => opt.MapFrom(src => ((int)src).ToString()));
+
+        // Role
+        CreateMap<Role, ListRoleResponse>();
+        CreateMap<CreateRoleRequest, Role>();
+        CreateMap<UpdateRoleRequest, Role>();
+        CreateMap<DeleteRoleRequest, Role>();
     }
 }

@@ -20,8 +20,6 @@ public class ApplicationDbContext(
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Role>().Property(r => r.Name).HasConversion<string>();
-
         modelBuilder.Entity<UserRole>().HasKey(ur => new { ur.UserId, ur.RoleId });
 
         modelBuilder
@@ -51,119 +49,59 @@ public class ApplicationDbContext(
         SeedData(modelBuilder);
     }
 
+    private void SeedData(ModelBuilder modelBuilder)
+    {
+        // Seed roles
+        modelBuilder
+            .Entity<Role>()
+            .HasData(
+                new Role
+                {
+                    Id = 1,
+                    Name = "ADMIN",
+                    Description = "Administrator role",
+                    CreateDate = DateTime.UtcNow,
+                    UpdateDate = DateTime.UtcNow,
+                },
+                new Role
+                {
+                    Id = 2,
+                    Name = "USER",
+                    Description = "User role",
+                    CreateDate = DateTime.UtcNow,
+                    UpdateDate = DateTime.UtcNow,
+                }
+            );
+    }
+
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        var entries = ChangeTracker.Entries<BaseEntity>();
-        var currentUserId = GetCurrentUserIdSafe();
-        var currentTime = DateTime.UtcNow;
+        var entries = ChangeTracker
+            .Entries()
+            .Where(e =>
+                e.Entity is BaseEntity
+                && (e.State == EntityState.Added || e.State == EntityState.Modified)
+            );
 
-        foreach (var entry in entries)
+        foreach (var entityEntry in entries)
         {
-            switch (entry.State)
-            {
-                case EntityState.Added:
-                    entry.Entity.CreateDate = currentTime;
-                    entry.Entity.UpdateDate = currentTime;
-                    entry.Entity.CreateBy = currentUserId;
-                    entry.Entity.UpdateBy = currentUserId;
-                    break;
+            var entity = (BaseEntity)entityEntry.Entity;
 
-                case EntityState.Modified:
-                    entry.Entity.UpdateDate = currentTime;
-                    entry.Entity.UpdateBy = currentUserId;
-                    entry.Property(x => x.CreateDate).IsModified = false;
-                    entry.Property(x => x.CreateBy).IsModified = false;
-                    break;
+            if (entityEntry.State == EntityState.Added)
+            {
+                entity.CreateDate = DateTime.UtcNow;
+                entity.CreateBy = _currentUser.UserId;
             }
+            else
+            {
+                entityEntry.Property("CreateDate").IsModified = false;
+                entityEntry.Property("CreateBy").IsModified = false;
+            }
+
+            entity.UpdateDate = DateTime.UtcNow;
+            entity.UpdateBy = _currentUser.UserId;
         }
 
         return base.SaveChangesAsync(cancellationToken);
-    }
-
-    private Guid? GetCurrentUserIdSafe()
-    {
-        try
-        {
-            return _currentUser.UserId;
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
-    private static void SeedData(ModelBuilder modelBuilder)
-    {
-        var systemDate = DateTime.UtcNow;
-
-        var adminRole = new Role
-        {
-            Id = 1,
-            Name = AppRole.ADMIN,
-            Description = "Administrator role",
-            CreateDate = systemDate,
-            UpdateDate = systemDate,
-            CreateBy = null,
-            UpdateBy = null,
-        };
-        var userRole = new Role
-        {
-            Id = 2,
-            Name = AppRole.USER,
-            Description = "User role",
-            CreateDate = systemDate,
-            UpdateDate = systemDate,
-            CreateBy = null,
-            UpdateBy = null,
-        };
-
-        modelBuilder.Entity<Role>().HasData(adminRole, userRole);
-
-        var userId1 = new Guid("96cb39f1-318f-4b17-97fb-c9bffe823a98");
-        var userId2 = new Guid("19542f2e-d222-4a24-a786-c2dc08ccfd87");
-
-        var user1 = new User
-        {
-            Id = userId1,
-            Username = "admin",
-            Email = "admin@example.com",
-            PasswordHash = PasswordHelper.HashPassword("admin123"),
-            Status = AppStatus.Active,
-            CreateDate = systemDate,
-            UpdateDate = systemDate,
-            CreateBy = null,
-            UpdateBy = null,
-        };
-        var user2 = new User
-        {
-            Id = userId2,
-            Username = "user",
-            Email = "user@example.com",
-            PasswordHash = PasswordHelper.HashPassword("user123"),
-            Status = AppStatus.Active,
-            CreateDate = systemDate,
-            UpdateDate = systemDate,
-            CreateBy = null,
-            UpdateBy = null,
-        };
-
-        modelBuilder.Entity<User>().HasData(user1, user2);
-
-        modelBuilder
-            .Entity<UserRole>()
-            .HasData(
-                new UserRole
-                {
-                    UserId = userId1,
-                    RoleId = 1,
-                    JoinDate = systemDate,
-                },
-                new UserRole
-                {
-                    UserId = userId2,
-                    RoleId = 2,
-                    JoinDate = systemDate,
-                }
-            );
     }
 }

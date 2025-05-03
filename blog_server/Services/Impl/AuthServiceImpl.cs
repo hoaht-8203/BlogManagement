@@ -224,7 +224,7 @@ public class AuthServiceImpl(
         };
 
         var defaultRole =
-            await _context.Roles.FirstOrDefaultAsync(r => r.Name == AppRole.USER)
+            await _context.Roles.FirstOrDefaultAsync(r => r.Name == AppRole.USER.ToString())
             ?? throw new ApiException(
                 "Default role not found",
                 StatusCodes.Status500InternalServerError
@@ -383,7 +383,7 @@ public class AuthServiceImpl(
             };
 
             var defaultRole =
-                await _context.Roles.FirstOrDefaultAsync(r => r.Name == AppRole.USER)
+                await _context.Roles.FirstOrDefaultAsync(r => r.Name == AppRole.USER.ToString())
                 ?? throw new ApiException(
                     "Default role not found",
                     StatusCodes.Status500InternalServerError

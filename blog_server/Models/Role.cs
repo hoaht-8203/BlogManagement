@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using blog_server.Constants;
 
 namespace blog_server.Models;
 
@@ -13,7 +12,8 @@ public class Role : BaseEntity
     public int Id { get; set; }
 
     [Column("name")]
-    public AppRole Name { get; set; }
+    [Required]
+    public string Name { get; set; } = string.Empty;
 
     [Column("description")]
     public string Description { get; set; } = string.Empty;
