@@ -19,4 +19,10 @@ export const API_ENDPOINTS = {
   TYPE: {
     LIST: '/type/list',
   },
+  ROLE: {
+    LIST: '/role/list',
+    CREATE: '/role/create',
+    UPDATE: '/role/update',
+    DELETE: '/role/delete',
+  },
 } as const;

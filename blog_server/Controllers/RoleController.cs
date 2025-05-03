@@ -3,6 +3,7 @@ using blog_server.DTOs.Role;
 using blog_server.Models;
 using blog_server.Services;
 using blog_server.Services.Impl;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace blog_server.Controllers
@@ -14,6 +15,7 @@ namespace blog_server.Controllers
         private readonly IRoleService _roleService = roleService;
 
         [HttpGet("list")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<ActionResult<ApiResponse<PaginatedList<ListRoleResponse>>>> List(
             [FromQuery] ListRoleRequest request
         )
@@ -29,6 +31,7 @@ namespace blog_server.Controllers
 
         [Transaction]
         [HttpPost("create")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<ActionResult> Create([FromBody] CreateRoleRequest request)
         {
             await _roleService.CreateRole(request);
@@ -37,6 +40,7 @@ namespace blog_server.Controllers
 
         [Transaction]
         [HttpPut("update")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<ActionResult> Update([FromBody] UpdateRoleRequest request)
         {
             await _roleService.UpdateRole(request);
@@ -45,6 +49,7 @@ namespace blog_server.Controllers
 
         [Transaction]
         [HttpDelete("delete")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<ActionResult> Delete([FromBody] DeleteRoleRequest request)
         {
             await _roleService.DeleteRole(request);

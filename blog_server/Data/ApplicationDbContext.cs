@@ -49,27 +49,79 @@ public class ApplicationDbContext(
         SeedData(modelBuilder);
     }
 
-    private void SeedData(ModelBuilder modelBuilder)
+    private static void SeedData(ModelBuilder modelBuilder)
     {
-        // Seed roles
+        var systemDate = DateTime.UtcNow;
+
+        var adminRole = new Role
+        {
+            Id = 1,
+            Name = AppRole.ADMIN.ToString(),
+            Description = "Administrator role",
+            CreateDate = systemDate,
+            UpdateDate = systemDate,
+            CreateBy = null,
+            UpdateBy = null,
+        };
+        var userRole = new Role
+        {
+            Id = 2,
+            Name = AppRole.USER.ToString(),
+            Description = "User role",
+            CreateDate = systemDate,
+            UpdateDate = systemDate,
+            CreateBy = null,
+            UpdateBy = null,
+        };
+
+        modelBuilder.Entity<Role>().HasData(adminRole, userRole);
+
+        var userId1 = new Guid("96cb39f1-318f-4b17-97fb-c9bffe823a98");
+        var userId2 = new Guid("19542f2e-d222-4a24-a786-c2dc08ccfd87");
+
+        var user1 = new User
+        {
+            Id = userId1,
+            Username = "admin",
+            Email = "admin@example.com",
+            PasswordHash = PasswordHelper.HashPassword("admin123"),
+            Status = AppStatus.Active,
+            CreateDate = systemDate,
+            UpdateDate = systemDate,
+            CreateBy = null,
+            UpdateBy = null,
+            IsEmailVerified = true,
+        };
+        var user2 = new User
+        {
+            Id = userId2,
+            Username = "user",
+            Email = "user@example.com",
+            PasswordHash = PasswordHelper.HashPassword("user123"),
+            Status = AppStatus.Active,
+            CreateDate = systemDate,
+            UpdateDate = systemDate,
+            CreateBy = null,
+            UpdateBy = null,
+            IsEmailVerified = true,
+        };
+
+        modelBuilder.Entity<User>().HasData(user1, user2);
+
         modelBuilder
-            .Entity<Role>()
+            .Entity<UserRole>()
             .HasData(
-                new Role
+                new UserRole
                 {
-                    Id = 1,
-                    Name = "ADMIN",
-                    Description = "Administrator role",
-                    CreateDate = DateTime.UtcNow,
-                    UpdateDate = DateTime.UtcNow,
+                    UserId = userId1,
+                    RoleId = 1,
+                    JoinDate = systemDate,
                 },
-                new Role
+                new UserRole
                 {
-                    Id = 2,
-                    Name = "USER",
-                    Description = "User role",
-                    CreateDate = DateTime.UtcNow,
-                    UpdateDate = DateTime.UtcNow,
+                    UserId = userId2,
+                    RoleId = 2,
+                    JoinDate = systemDate,
                 }
             );
     }

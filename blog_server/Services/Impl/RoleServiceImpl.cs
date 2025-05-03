@@ -6,13 +6,19 @@ using blog_server.DTOs.Role;
 using blog_server.Exceptions;
 using blog_server.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace blog_server.Services.Impl;
 
-public class RoleServiceImpl(ApplicationDbContext context, IMapper mapper) : IRoleService
+public class RoleServiceImpl(
+    ApplicationDbContext context,
+    IMapper mapper,
+    ILogger<RoleServiceImpl> logger
+) : IRoleService
 {
     private readonly ApplicationDbContext _context = context;
     private readonly IMapper _mapper = mapper;
+    private readonly ILogger<RoleServiceImpl> _logger = logger;
 
     public async Task CreateRole(CreateRoleRequest request)
     {

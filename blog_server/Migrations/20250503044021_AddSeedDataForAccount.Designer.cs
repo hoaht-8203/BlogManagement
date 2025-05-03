@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using blog_server.Data;
@@ -11,9 +12,11 @@ using blog_server.Data;
 namespace blog_server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250503044021_AddSeedDataForAccount")]
+    partial class AddSeedDataForAccount
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -115,18 +118,18 @@ namespace blog_server.Migrations
                         new
                         {
                             Id = 1,
-                            CreateDate = new DateTime(2025, 5, 3, 4, 41, 20, 433, DateTimeKind.Utc).AddTicks(4150),
+                            CreateDate = new DateTime(2025, 5, 3, 4, 40, 21, 203, DateTimeKind.Utc).AddTicks(1080),
                             Description = "Administrator role",
                             Name = "ADMIN",
-                            UpdateDate = new DateTime(2025, 5, 3, 4, 41, 20, 433, DateTimeKind.Utc).AddTicks(4150)
+                            UpdateDate = new DateTime(2025, 5, 3, 4, 40, 21, 203, DateTimeKind.Utc).AddTicks(1080)
                         },
                         new
                         {
                             Id = 2,
-                            CreateDate = new DateTime(2025, 5, 3, 4, 41, 20, 433, DateTimeKind.Utc).AddTicks(4150),
+                            CreateDate = new DateTime(2025, 5, 3, 4, 40, 21, 203, DateTimeKind.Utc).AddTicks(1080),
                             Description = "User role",
                             Name = "USER",
-                            UpdateDate = new DateTime(2025, 5, 3, 4, 41, 20, 433, DateTimeKind.Utc).AddTicks(4150)
+                            UpdateDate = new DateTime(2025, 5, 3, 4, 40, 21, 203, DateTimeKind.Utc).AddTicks(1080)
                         });
                 });
 
@@ -200,23 +203,23 @@ namespace blog_server.Migrations
                         new
                         {
                             Id = new Guid("96cb39f1-318f-4b17-97fb-c9bffe823a98"),
-                            CreateDate = new DateTime(2025, 5, 3, 4, 41, 20, 433, DateTimeKind.Utc).AddTicks(4150),
+                            CreateDate = new DateTime(2025, 5, 3, 4, 40, 21, 203, DateTimeKind.Utc).AddTicks(1080),
                             Email = "admin@example.com",
-                            IsEmailVerified = true,
-                            PasswordHash = "ZJWtTk8vsxR3Aej/95bJJFPZcgFTXYDiXBQjMSpgNL5S5Bi1vFfFZnBWftS5M+LkQmDjnmklwmzvEOt7/StBXMDS9xYNvnLVCWMH0YN3fyA=",
+                            IsEmailVerified = false,
+                            PasswordHash = "04UzNdiuV3KcLwH/aQqLE+/BK2IfLjkka+6YxVFI0GoSjlyC+gP5AXAN1QFUmL55ZxLEU0CAPCGVwAKvbtdnVybff+VsS5osQnVZhKBClGc=",
                             Status = 1,
-                            UpdateDate = new DateTime(2025, 5, 3, 4, 41, 20, 433, DateTimeKind.Utc).AddTicks(4150),
+                            UpdateDate = new DateTime(2025, 5, 3, 4, 40, 21, 203, DateTimeKind.Utc).AddTicks(1080),
                             Username = "admin"
                         },
                         new
                         {
                             Id = new Guid("19542f2e-d222-4a24-a786-c2dc08ccfd87"),
-                            CreateDate = new DateTime(2025, 5, 3, 4, 41, 20, 433, DateTimeKind.Utc).AddTicks(4150),
+                            CreateDate = new DateTime(2025, 5, 3, 4, 40, 21, 203, DateTimeKind.Utc).AddTicks(1080),
                             Email = "user@example.com",
-                            IsEmailVerified = true,
-                            PasswordHash = "j1oSvoeWbXOHJQ19NNKpKJOwu/0kC9Cl/CZL2ixXNR2R4Px3cZ7WdPmQoAbeoX6BgbznKRe2lGnhcs2wYP6I01L3+uXt50y5se4Orpp+qkE=",
+                            IsEmailVerified = false,
+                            PasswordHash = "/tok7BnPlKW6vZ4LYBcB7cDl4O8Ixl3lWrNQXWXreAjuns+LtE+C7qMpDBfNAjzjIzgUi0jq5RnurRBtgS0tCywxKa6sC4o5HKFQ5NdhZaE=",
                             Status = 1,
-                            UpdateDate = new DateTime(2025, 5, 3, 4, 41, 20, 433, DateTimeKind.Utc).AddTicks(4150),
+                            UpdateDate = new DateTime(2025, 5, 3, 4, 40, 21, 203, DateTimeKind.Utc).AddTicks(1080),
                             Username = "user"
                         });
                 });
@@ -246,13 +249,13 @@ namespace blog_server.Migrations
                         {
                             UserId = new Guid("96cb39f1-318f-4b17-97fb-c9bffe823a98"),
                             RoleId = 1,
-                            JoinDate = new DateTime(2025, 5, 3, 4, 41, 20, 433, DateTimeKind.Utc).AddTicks(4150)
+                            JoinDate = new DateTime(2025, 5, 3, 4, 40, 21, 203, DateTimeKind.Utc).AddTicks(1080)
                         },
                         new
                         {
                             UserId = new Guid("19542f2e-d222-4a24-a786-c2dc08ccfd87"),
                             RoleId = 2,
-                            JoinDate = new DateTime(2025, 5, 3, 4, 41, 20, 433, DateTimeKind.Utc).AddTicks(4150)
+                            JoinDate = new DateTime(2025, 5, 3, 4, 40, 21, 203, DateTimeKind.Utc).AddTicks(1080)
                         });
                 });
 
