@@ -55,5 +55,14 @@ namespace blog_server.Controllers
             await _roleService.DeleteRole(request);
             return Ok(ApiResponse<object?>.SuccessResponse(null, "Delete role success"));
         }
+
+        [Transaction]
+        [HttpPost("assign")]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<ActionResult> Assign([FromBody] AssignRoleRequest request)
+        {
+            await _roleService.AssignRole(request);
+            return Ok(ApiResponse<object?>.SuccessResponse(null, "Assign role success"));
+        }
     }
 }

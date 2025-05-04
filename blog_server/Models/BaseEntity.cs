@@ -11,8 +11,8 @@ public class BaseEntity
     public DateTime UpdateDate { get; set; }
 
     [Column("create_by")]
-    public Guid? CreateBy { get; set; }
+    public string? CreateBy { get; set; }
 
     [Column("update_by")]
-    public Guid? UpdateBy { get; set; }
+    public string? UpdateBy { get; set; }
 }

@@ -26,14 +26,38 @@ export const rolesTableColumns = (
     title: 'Mô tả',
     dataIndex: 'description',
     key: 'description',
-    width: 230,
+    width: 190,
+  },
+  {
+    title: 'Số lượng người dùng',
+    dataIndex: 'totalUsers',
+    key: 'totalUsers',
+    width: 190,
+  },
+  {
+    title: 'Người tạo',
+    dataIndex: 'createBy',
+    key: 'createBy',
+    width: 120,
+    render: (text) => {
+      return <span>{text || '-'}</span>;
+    },
+  },
+  {
+    title: 'Người cập nhật',
+    dataIndex: 'updateBy',
+    key: 'updateBy',
+    width: 120,
+    render: (text) => {
+      return <span>{text || '-'}</span>;
+    },
   },
   {
     title: 'Ngày tạo',
     dataIndex: 'createDate',
     key: 'createDate',
     render: (text) => {
-      return <span>{new Date(text).toLocaleString()}</span>;
+      return <span>{new Date(text).toLocaleDateString()}</span>;
     },
     width: 170,
   },

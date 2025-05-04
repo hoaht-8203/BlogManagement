@@ -66,7 +66,8 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Value, opt => opt.MapFrom(src => ((int)src).ToString()));
 
         // Role
-        CreateMap<Role, ListRoleResponse>();
+        CreateMap<Role, ListRoleResponse>()
+            .ForMember(dest => dest.TotalUsers, opt => opt.MapFrom(src => src.UserRoles.Count));
         CreateMap<CreateRoleRequest, Role>();
         CreateMap<UpdateRoleRequest, Role>();
         CreateMap<DeleteRoleRequest, Role>();

@@ -57,7 +57,7 @@ const AdminRoles = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3">
         <div className="col-span-1">
           <Table<ListRoleResponse>
             columns={rolesTableColumns(

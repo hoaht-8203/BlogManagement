@@ -4,14 +4,15 @@ export interface ListRoleRequest extends PaginationRequest {
   name?: string;
 }
 
-export interface ListRoleResponse extends PaginationRequest {
+export interface ListRoleResponse {
   id: number;
   name: string;
   description: string;
-  createdAt: Date;
-  updatedAt: Date;
-  createdBy: string;
-  updatedBy: string;
+  totalUsers: number;
+  createBy: string;
+  updateBy: string;
+  createDate: Date;
+  updateDate: Date;
 }
 
 export interface CreateRoleRequest {

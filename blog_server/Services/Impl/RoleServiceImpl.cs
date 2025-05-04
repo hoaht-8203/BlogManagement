@@ -1,9 +1,11 @@
 using System;
+using System.Linq;
 using AutoMapper;
 using blog_server.Constants;
 using blog_server.Data;
 using blog_server.DTOs.Role;
 using blog_server.Exceptions;
+using blog_server.Extensions;
 using blog_server.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -19,6 +21,31 @@ public class RoleServiceImpl(
     private readonly ApplicationDbContext _context = context;
     private readonly IMapper _mapper = mapper;
     private readonly ILogger<RoleServiceImpl> _logger = logger;
+
+    public async Task AssignRole(AssignRoleRequest request)
+    {
+        var user =
+            await _context
+                .Users.Include(u => u.UserRoles)
+                .FirstOrDefaultAsync(u => u.Id.ToString() == request.UserId)
+            ?? throw new ApiException("User not found", StatusCodes.Status400BadRequest);
+
+        var roles = await _context.Roles.Where(r => request.RoleIds.Contains(r.Id)).ToListAsync();
+
+        if (roles.Count != request.RoleIds.Count)
+        {
+            throw new ApiException("One or more roles not found", StatusCodes.Status400BadRequest);
+        }
+
+        var newUserRoles = roles
+            .Select(role => new UserRole { RoleId = role.Id, UserId = user.Id })
+            .ToList();
+
+        user.UserRoles.Clear();
+
+        await _context.UserRoles.AddRangeAsync(newUserRoles);
+        await _context.SaveChangesAsync();
+    }
 
     public async Task CreateRole(CreateRoleRequest request)
     {
@@ -51,20 +78,22 @@ public class RoleServiceImpl(
             throw new ApiException("Invalid pagination request", StatusCodes.Status400BadRequest);
         }
 
-        var query = _context.Roles.AsQueryable();
+        var query = _context.Roles.Include(r => r.UserRoles).AsQueryable();
 
         if (!string.IsNullOrEmpty(request.Name))
         {
             query = query.Where(r => r.Name == request.Name);
         }
 
-        var roles = await query.ToListAsync();
+        var totalCount = await query.CountAsync();
+        var roles = await query.Paginate(request.PageNumber, request.PageSize).ToListAsync();
         var response = _mapper.Map<List<ListRoleResponse>>(roles);
+
         return new PaginatedList<ListRoleResponse>(
             response,
-            roles.Count,
             request.PageNumber,
-            request.PageSize
+            request.PageSize,
+            totalCount
         );
     }
 

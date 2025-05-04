@@ -11,4 +11,5 @@ public interface IRoleService
     public Task CreateRole(CreateRoleRequest request);
     public Task UpdateRole(UpdateRoleRequest request);
     public Task DeleteRole(DeleteRoleRequest request);
+    public Task AssignRole(AssignRoleRequest request);
 }

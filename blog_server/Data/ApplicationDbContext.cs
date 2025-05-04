@@ -142,7 +142,7 @@ public class ApplicationDbContext(
             if (entityEntry.State == EntityState.Added)
             {
                 entity.CreateDate = DateTime.UtcNow;
-                entity.CreateBy = _currentUser.UserId;
+                entity.CreateBy = _currentUser.Username;
             }
             else
             {
@@ -151,7 +151,7 @@ public class ApplicationDbContext(
             }
 
             entity.UpdateDate = DateTime.UtcNow;
-            entity.UpdateBy = _currentUser.UserId;
+            entity.UpdateBy = _currentUser.Username;
         }
 
         return base.SaveChangesAsync(cancellationToken);
